@@ -29,7 +29,17 @@ function M.toggle(opts)
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
 
   local cmd = create_cmd(opts)
-  return snacks.toggle(cmd, opts)
+  local term = snacks.toggle(cmd, opts)
+  
+  -- Emit event when terminal is created/toggled on
+  if term and term:buf_valid() then
+    vim.api.nvim_exec_autocmds("User", {
+      pattern = "AiderTerminalOpen",
+      data = { buf = term.buf }
+    })
+  end
+  
+  return term
 end
 
 ---Send text to terminal
