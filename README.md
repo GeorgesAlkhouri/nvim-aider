@@ -110,6 +110,22 @@ require("nvim_aider").setup({
 })
 ```
 
+## 🎮 Terminal Keymaps
+
+The plugin emits a `User` event `AiderTerminalOpen` when the terminal is created, allowing you to set up buffer-local keymaps. For example, to make `<Esc>` close the terminal in normal mode:
+
+```lua
+vim.api.nvim_create_autocmd("User", {
+  pattern = "AiderTerminalOpen",
+  callback = function(args)
+    local buf = args.data.buf
+    vim.keymap.set("n", "<Esc>", function()
+      require("nvim_aider.terminal").toggle()
+    end, { buffer = buf, silent = true })
+  end,
+})
+```
+
 ---
 
 <div align="center">
