@@ -115,3 +115,9 @@ require("nvim_aider").setup({
 <div align="center">
 Made with 🤖 using <a href="https://github.com/paul-gauthier/aider">Aider</a>
 </div>
+
+# `diff nekowasabi/aider.vim`
+// TODO: State differences
+
+# `diff joshuavial/aider.nvim`
+// TODO: State differences
