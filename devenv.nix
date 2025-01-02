@@ -12,9 +12,13 @@ in
 
   env.LUA_PATH = "$LUA_PATH;?.lua";
   packages = with unstable; [
+    gnumake
     git
     lua-language-server
     stylua
+    lua
+    luajitPackages.luafilesystem
+    luajitPackages.luarocks
   ];
   languages.lua.enable = true;
   languages.lua.package = unstable.lua;
@@ -25,4 +29,7 @@ in
     aider-chat
   '';
 
+  enterTest = ''
+    make test
+  '';
 }

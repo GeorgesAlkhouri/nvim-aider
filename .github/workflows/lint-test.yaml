@@ -15,19 +15,30 @@ jobs:
           args: --color always --check lua
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest]
         nvim-versions: ["stable", "nightly"]
     name: test
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
           version: ${{ matrix.nvim-versions }}
 
-      - name: run tests
-        run: make test
+      - uses: cachix/install-nix-action@v26
+
+      - uses: cachix/cachix-action@v14
+        with:
+          name: devenv
+
+      - name: Install devenv.sh
+        run: nix profile install nixpkgs#devenv
+
+      - name: Run test
+        run: |
+          devenv test
