@@ -7,14 +7,28 @@ jobs:
     name: stylua
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: JohnnyMorganz/stylua-action@v3
+      - uses: actions/checkout@v4
+      - uses: JohnnyMorganz/stylua-action@v4
         with:
           version: latest
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --color always --check lua
 
-  test:
+  # tests:
+  #   runs-on: ubuntu-latest
+  #   # timeout-minutes: 10
+  #   # if: ${{ needs.config.outputs.has_tests == 'true' }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: folke/github/neovim@main
+  #     # - name: Test Cache
+  #     #   uses: actions/cache@v4
+  #     #   with:
+  #     #     path: .tests
+  #     #     key: ${{ runner.os }}-tests-${{ hashFiles('tests/minit.lua', 'scripts/test') }}
+  #     - name: Run Tests
+  #       run: nvim -l tests/minit.lua --minitest
+  tests:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,6 +52,12 @@ jobs:
 
       - name: Install devenv.sh
         run: nix profile install nixpkgs#devenv
+
+      - name: Test Cache
+        uses: actions/cache@v4
+        with:
+          path: .tests
+          key: ${{ runner.os }}-${{ matrix.nvim-versions }}-tests-${{ hashFiles('tests/minit.lua', 'devenv.nix', 'devenv.lock') }}
 
       - name: Run test
         run: |

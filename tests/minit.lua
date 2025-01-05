@@ -6,13 +6,20 @@ vim.env.LAZY_STDPATH = ".tests"
 load(vim.fn.system("curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua"))()
 
 -- Configure plugins
-local plugins = {
-  "nvim-lua/plenary.nvim",
-}
+-- local plugins = {
+--   "nvim-lua/plenary.nvim",
+-- }
 
 -- Setup lazy.nvim
-require("lazy.minit").busted({
+require("lazy.minit").setup({
+  -- rocks = {
+  --   hererocks = false,
+  -- },
+  -- -- install = {
+  -- --   missing = false,
+  -- -- },
   spec = {
+    { dir = vim.uv.cwd() },
     "LazyVim/starter",
     {
       "GeorgesAlkhouri/nvim-aider",
