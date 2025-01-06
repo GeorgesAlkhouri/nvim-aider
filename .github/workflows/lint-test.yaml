@@ -1,6 +1,10 @@
 ---
-on: [push, pull_request]
-name: lint-test
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
 
 jobs:
   stylua:
@@ -14,20 +18,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --color always --check lua
 
-  # tests:
-  #   runs-on: ubuntu-latest
-  #   # timeout-minutes: 10
-  #   # if: ${{ needs.config.outputs.has_tests == 'true' }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: folke/github/neovim@main
-  #     # - name: Test Cache
-  #     #   uses: actions/cache@v4
-  #     #   with:
-  #     #     path: .tests
-  #     #     key: ${{ runner.os }}-tests-${{ hashFiles('tests/minit.lua', 'scripts/test') }}
-  #     - name: Run Tests
-  #       run: nvim -l tests/minit.lua --minitest
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -46,9 +36,10 @@ jobs:
 
       - uses: cachix/install-nix-action@v26
 
-      - uses: cachix/cachix-action@v14
+      - uses: cachix/cachix-action@v15
         with:
-          name: devenv
+          authToken: ${{ secrets.CACHIX }}
+          name: georgesalkhouri
 
       - name: Install devenv.sh
         run: nix profile install nixpkgs#devenv
