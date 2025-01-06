@@ -34,7 +34,7 @@ jobs:
           neovim: true
           version: ${{ matrix.nvim-versions }}
 
-      - uses: cachix/install-nix-action@v26
+      - uses: cachix/install-nix-action@v30
 
       - uses: cachix/cachix-action@v15
         with:
