@@ -96,6 +96,9 @@ function M.setup(opts)
       M.terminal.command(commands.drop.value, relative_filepath)
     end
   end, {})
+
+  -- Setup nvim-tree integration
+  require("nvim_aider.tree").setup()
 end
 
 return M
