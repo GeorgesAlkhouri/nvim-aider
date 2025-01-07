@@ -43,7 +43,7 @@ function M.send(text, opts, multi_line)
   local cmd = create_cmd(opts)
   local term = require("snacks.terminal").get(cmd, opts)
   if not term then
-    vim.notify("Please open an Aider terminal fist.", vim.log.levels.INFO)
+    vim.notify("Please open an Aider terminal first.", vim.log.levels.INFO)
     return
   end
 
@@ -51,17 +51,20 @@ function M.send(text, opts, multi_line)
     local chan = vim.api.nvim_buf_get_var(term.buf, "terminal_job_id")
     if chan then
       if multi_line then
-        vim.fn.setreg("+", text)
-        vim.api.nvim_chan_send(chan, commands.paste.value .. "\n")
+        -- Use bracketed paste sequences
+        local bracket_start = "\27[200~"
+        local bracket_end = "\27[201~\r"
+        local bracketed_text = bracket_start .. text .. bracket_end
+        vim.api.nvim_chan_send(chan, bracketed_text)
       else
-        text = text.gsub(text, "\n", " ") .. "\n"
+        text = text:gsub("\n", " ") .. "\n"
         vim.api.nvim_chan_send(chan, text)
       end
     else
       vim.notify("No Aider terminal job found!", vim.log.levels.ERROR)
     end
   else
-    vim.notify("Please open an Aider terminal fist.", vim.log.levels.INFO)
+    vim.notify("Please open an Aider terminal first.", vim.log.levels.INFO)
   end
 end
 
@@ -72,7 +75,7 @@ function M.command(command, text, opts)
   text = text or ""
 
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
-  -- NOTE: commands like `/add file` should be send to aider without a newline
+  -- NOTE: For Aider commands that shouldn't get a newline (e.g. `/add file`)
   M.send(command .. " " .. text, opts, false)
 end
 

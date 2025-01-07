@@ -35,13 +35,9 @@
 ## 🔗 Requirements
 
 🐍 Python: Install `aider-chat`  
-📋 System: **Neovim** >= 0.9.4, Working clipboard  
+📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier  
 🌙 Lua: `folke/snacks.nvim`, `nvim-telescope/telescope.nvim`,
 _optionals_ `catppuccin/nvim`
-
-> Note: 📎 This plugin requires a working system clipboard as
-> it sends text to the terminal via Aider's /paste commands,
-> which inserts the system clipboard register for the best compatibility.
 
 ## 📦 Installation
 
