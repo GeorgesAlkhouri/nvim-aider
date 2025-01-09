@@ -34,7 +34,7 @@ local function add_file_from_tree()
     vim.notify("Error getting node: " .. tostring(result), vim.log.levels.ERROR)
     return
   end
-  
+
   node = result
   if not node then
     vim.notify("No node found under cursor", vim.log.levels.WARN)
@@ -79,7 +79,7 @@ local function drop_file_from_tree()
     vim.notify("Error getting node: " .. tostring(result), vim.log.levels.ERROR)
     return
   end
-  
+
   node = result
   if not node then
     vim.notify("No node found under cursor", vim.log.levels.WARN)

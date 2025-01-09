@@ -1,24 +1,24 @@
-local mock = require('luassert.mock')
-local stub = require('luassert.stub')
+local mock = require("luassert.mock")
+local stub = require("luassert.stub")
 
 describe("nvim-tree integration", function()
   local nvim_aider
   local nvim_tree_mock
   local notify_stub
-  
+
   -- Create mock nvim-tree.api module
   local function create_mock_nvim_tree()
     -- Create a mock module table
     local mock_module = {
       tree = {
-        get_node_under_cursor = function() end
-      }
+        get_node_under_cursor = function() end,
+      },
     }
     -- Add to package.loaded so require finds it
     package.loaded["nvim-tree.api"] = mock_module
     return mock_module
   end
-  
+
   before_each(function()
     -- Create mock module before loading nvim_aider
     nvim_tree_mock = create_mock_nvim_tree()
@@ -39,12 +39,9 @@ describe("nvim-tree integration", function()
       vim.bo.filetype = "not-nvim-tree"
       -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeAddFile", {})
-      
+
       -- Should show warning
-      assert.stub(notify_stub).was.called_with(
-        "Not in nvim-tree buffer",
-        vim.log.levels.WARN
-      )
+      assert.stub(notify_stub).was.called_with("Not in nvim-tree buffer", vim.log.levels.WARN)
     end)
 
     it("should handle missing nvim-tree.tree field", function()
@@ -52,11 +49,10 @@ describe("nvim-tree integration", function()
       nvim_tree_mock.tree = nil
       -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeAddFile", {})
-      
-      assert.stub(notify_stub).was.called_with(
-        "nvim-tree API has changed - please update the plugin",
-        vim.log.levels.ERROR
-      )
+
+      assert
+        .stub(notify_stub).was
+        .called_with("nvim-tree API has changed - please update the plugin", vim.log.levels.ERROR)
     end)
 
     it("should handle node retrieval errors", function()
@@ -66,7 +62,7 @@ describe("nvim-tree integration", function()
       end
       -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeAddFile", {})
-      
+
       -- The actual error includes the file/line info, so we need to check differently
       assert.stub(notify_stub).was_called(1)
       local call_args = notify_stub.calls[1]
@@ -81,11 +77,8 @@ describe("nvim-tree integration", function()
       end
       -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeAddFile", {})
-      
-      assert.stub(notify_stub).was.called_with(
-        "No node found under cursor",
-        vim.log.levels.WARN
-      )
+
+      assert.stub(notify_stub).was.called_with("No node found under cursor", vim.log.levels.WARN)
     end)
 
     it("should handle node without absolute_path", function()
@@ -95,11 +88,8 @@ describe("nvim-tree integration", function()
       end
       -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeAddFile", {})
-      
-      assert.stub(notify_stub).was.called_with(
-        "No valid file selected in nvim-tree",
-        vim.log.levels.WARN
-      )
+
+      assert.stub(notify_stub).was.called_with("No valid file selected in nvim-tree", vim.log.levels.WARN)
     end)
   end)
 
@@ -109,11 +99,8 @@ describe("nvim-tree integration", function()
       vim.bo.filetype = "not-nvim-tree"
       -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeDropFile", {})
-      
-      assert.stub(notify_stub).was.called_with(
-        "Not in nvim-tree buffer",
-        vim.log.levels.WARN
-      )
+
+      assert.stub(notify_stub).was.called_with("Not in nvim-tree buffer", vim.log.levels.WARN)
     end)
 
     -- Add other similar tests as needed
