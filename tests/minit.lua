@@ -39,6 +39,7 @@ require("lazy.minit").setup({
         "nvim-telescope/telescope.nvim",
         --- The below dependencies are optional
         "catppuccin/nvim",
+        "nvim-tree/nvim-tree.lua",
       },
       config = true,
     },
