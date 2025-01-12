@@ -21,6 +21,7 @@ describe("nvim_aider", function()
       "AiderQuickSendBuffer",
       "AiderQuickAddFile",
       "AiderQuickDropFile",
+      "AiderQuickReadOnlyFile",
     }
     for _, cmd in ipairs(expected_commands) do
       assert(user_commands[cmd], "Expected command '" .. cmd .. "' to be registered after setup()")
@@ -47,14 +48,21 @@ describe("utils", function()
       return original_io_popen(cmd)
     end
 
-    -- Mock vim.fn.expand
+    -- Mock vim.fn.expand and git root handling
     vim.fn = setmetatable({
       expand = function(path)
-        return "/fake/git/root/some/file.lua"
+        local expanded = "/fake/git/root/some/file.lua"
+        print(string.format("Mock expand(%s) => %s", path, expanded))
+        return expanded
       end,
     }, {
       __index = original_vim_fn,
     })
+
+    -- Override git root function to return consistent path
+    utils.get_git_root = function()
+      return "/fake/git/root"
+    end
 
     -- Mock vim.bo
     vim.bo = setmetatable({
@@ -92,5 +100,84 @@ describe("utils", function()
     end
     local rel_path = utils.get_relative_path()
     assert.is_nil(rel_path)
+  end)
+end)
+
+describe("read-only command", function()
+  local original_terminal = require("nvim_aider.terminal")
+  local commands = require("nvim_aider.commands")
+  local mock_terminal = {
+    command_calls = {},
+    command = function(self, cmd, arg)
+      table.insert(self.command_calls, { cmd = cmd, arg = arg })
+    end,
+  }
+
+  before_each(function()
+    -- Reset the mock calls
+    mock_terminal.command_calls = {}
+    -- Replace terminal with our mock
+    package.loaded["nvim_aider.terminal"] = mock_terminal
+  end)
+
+  after_each(function()
+    -- Restore original terminal
+    package.loaded["nvim_aider.terminal"] = original_terminal
+  end)
+
+  it("sends read-only command with correct filepath", function()
+    -- Create a test buffer and set it as current
+    local bufnr = vim.api.nvim_create_buf(true, false)
+    vim.api.nvim_set_current_buf(bufnr)
+    
+    -- Mock the buffer name and ensure it's a normal buffer
+    vim.api.nvim_buf_set_name(bufnr, "/fake/git/root/some/file.lua")
+    vim.bo[bufnr].buftype = ""
+    
+    -- Set up the plugin
+    nvim_aider.setup()
+    
+    -- Execute the command directly
+    vim.cmd('AiderQuickReadOnlyFile')
+    -- Give a small delay for the command to execute
+    vim.wait(100)
+
+    -- Get and verify the relative path
+    local rel_path = "some/file.lua"  -- This is what we expect based on our mock setup
+    
+    -- Verify the terminal command was called correctly
+    assert.equals(1, #mock_terminal.command_calls, "Expected one terminal command call")
+    assert.equals(commands["read-only"].value, mock_terminal.command_calls[1].cmd)
+    assert.equals(rel_path, mock_terminal.command_calls[1].arg, 
+        string.format("Expected arg '%s' but got '%s'", rel_path, mock_terminal.command_calls[1].arg))
+  end)
+
+  it("shows notification for invalid buffer", function()
+    -- Create a terminal buffer
+    local bufnr = vim.api.nvim_create_buf(true, false)
+    vim.api.nvim_set_current_buf(bufnr)
+    
+    -- Set buffer type safely
+    pcall(function()
+      vim.api.nvim_buf_set_option(bufnr, 'buftype', 'terminal')
+    end)
+    
+    local notifications = {}
+    vim.notify = function(msg, level)
+      table.insert(notifications, { msg = msg, level = level })
+    end
+    
+    -- Set up the plugin
+    nvim_aider.setup()
+    
+    -- Execute the command
+    local ok, _ = pcall(vim.api.nvim_command, 'AiderQuickReadOnlyFile')
+    assert(ok, "Command should execute without error")
+
+    -- Verify notifications
+    assert.equals(1, #notifications)
+    assert.equals("No valid file in current buffer", notifications[1].msg)
+    assert.equals(vim.log.levels.INFO, notifications[1].level)
+    assert.equals(0, #mock_terminal.command_calls)
   end)
 end)
