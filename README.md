@@ -32,6 +32,18 @@
 - 📋 `AiderQuickSendBuffer` - Send entire buffer content to Aider
   with an optional prompt
 
+### 🔭 Telescope Integration
+
+The plugin provides telescope extensions for file management:
+
+```lua
+-- Add files to Aider session (use <C-a> to select)
+:Telescope aider_add
+
+-- Drop files from Aider session (use <C-d> to select)
+:Telescope aider_drop
+```
+
 ## 🔗 Requirements
 
 🐍 Python: Install `aider-chat`  
@@ -71,6 +83,7 @@ Using lazy.nvim:
 
 There is no need to call setup if you don't want to change the default options.
 
+### Basic Setup
 ```lua
 require("nvim_aider").setup({
   -- Command line arguments passed to aider
@@ -104,7 +117,22 @@ require("nvim_aider").setup({
     position = "bottom",
   },
 })
+
+-- Enable telescope integration (optional)
+require("telescope").load_extension("aider")
 ```
+
+### Telescope Integration
+
+To use the telescope integration:
+
+1. Make sure telescope.nvim is installed as a dependency
+2. Add `require("telescope").load_extension("aider")` to your config
+3. Use the commands:
+   - `:Telescope aider_add` - Add files to Aider session
+   - `:Telescope aider_drop` - Remove files from Aider session
+
+The telescope pickers support multi-selection with `<C-a>` for add and `<C-d>` for drop.
 
 ---
 
