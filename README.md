@@ -33,6 +33,7 @@
 - 🗑️ `AiderQuickDropFile` - Remove current buffer file from Aider session
 - 📋 `AiderQuickSendBuffer` - Send entire buffer content to Aider
   with an optional prompt
+- 📚 `AiderQuickReadOnlyFile` - Add current buffer as read-only reference file
 
 ## 🔗 Requirements
 
@@ -58,6 +59,7 @@ Using lazy.nvim:
       { "<leader>ab", "<cmd>AiderQuickSendBuffer<cr>", desc = "Send Buffer To Aider" },
       { "<leader>a+", "<cmd>AiderQuickAddFile<cr>", desc = "Add File to Aider" },
       { "<leader>a-", "<cmd>AiderQuickDropFile<cr>", desc = "Drop File from Aider" },
+      { "<leader>ar", "<cmd>AiderQuickReadOnlyFile<cr>", desc = "Add File as Read-Only" },
       -- Example nvim-tree.lua integration if needed
       { "<leader>a+", "<cmd>AiderTreeAddFile<cr>", desc = "Add File from Tree to Aider", ft = "NvimTree" },
       { "<leader>a-", "<cmd>AiderTreeDropFile<cr>", desc = "Drop File from Tree from Aider", ft = "NvimTree" },
