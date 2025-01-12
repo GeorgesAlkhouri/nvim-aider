@@ -1,4 +1,3 @@
-local mock = require("luassert.mock")
 local stub = require("luassert.stub")
 
 describe("nvim-tree integration", function()
