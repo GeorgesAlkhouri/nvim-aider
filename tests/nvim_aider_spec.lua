@@ -70,27 +70,27 @@ describe("utils", function()
     vim.bo = original_vim_bo
   end)
 
-  it("gets relative path correctly", function()
-    local rel_path = utils.get_relative_path()
-    assert.equals("some/file.lua", rel_path)
+  it("gets absolute path correctly", function()
+    local abs_path = utils.get_absolute_path()
+    assert.equals("/fake/git/root/some/file.lua", abs_path)
   end)
 
   it("returns nil for special buffer types", function()
     vim.bo.buftype = "terminal"
-    local rel_path = utils.get_relative_path()
-    assert.is_nil(rel_path)
+    local abs_path = utils.get_absolute_path()
+    assert.is_nil(abs_path)
   end)
 
-  it("returns nil when not in git repo", function()
-    io.popen = function()
-      return {
-        read = function()
-          return nil
-        end,
-        close = function() end,
-      }
-    end
-    local rel_path = utils.get_relative_path()
-    assert.is_nil(rel_path)
+  it("returns nil for empty buffer", function()
+    -- Override the mock to simulate empty buffer
+    vim.fn = setmetatable({
+      expand = function(path)
+        return ""
+      end,
+    }, {
+      __index = original_vim_fn,
+    })
+    local abs_path = utils.get_absolute_path()
+    assert.is_nil(abs_path)
   end)
 end)

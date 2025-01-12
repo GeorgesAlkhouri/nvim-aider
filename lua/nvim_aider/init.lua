@@ -80,20 +80,20 @@ function M.setup(opts)
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickAddFile", function()
-    local relative_filepath = utils.get_relative_path()
-    if relative_filepath == nil then
+    local filepath = utils.get_absolute_path()
+    if filepath == nil then
       vim.notify("No valid file in current buffer", vim.log.levels.INFO)
     else
-      M.terminal.command(commands.add.value, relative_filepath)
+      M.terminal.command(commands.add.value, filepath)
     end
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickDropFile", function()
-    local relative_filepath = utils.get_relative_path()
-    if relative_filepath == nil then
+    local filepath = utils.get_absolute_path()
+    if filepath == nil then
       vim.notify("No valid file in current buffer", vim.log.levels.INFO)
     else
-      M.terminal.command(commands.drop.value, relative_filepath)
+      M.terminal.command(commands.drop.value, filepath)
     end
   end, {})
 end
