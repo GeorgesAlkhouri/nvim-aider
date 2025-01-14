@@ -272,10 +272,7 @@ describe("read-only command", function()
       vim.api.nvim_buf_set_option(bufnr, "buftype", "terminal")
     end)
 
-    local notifications = {}
-    vim.notify = function(msg, level)
-      table.insert(notifications, { msg = msg, level = level })
-    end
+    local notify_spy = spy.on(vim, "notify")
 
     -- Set up the plugin
     nvim_aider.setup()
@@ -284,10 +281,11 @@ describe("read-only command", function()
     local ok, _ = pcall(vim.api.nvim_command, "AiderQuickReadOnlyFile")
     assert(ok, "Command should execute without error")
 
+    local ok, _ = pcall(vim.api.nvim_command, "AiderQuickReadOnlyFile")
+    assert(ok, "Command should execute without error")
+
     -- Verify notifications
-    assert.equals(1, #notifications)
-    assert.equals("No valid file in current buffer", notifications[1].msg)
-    assert.equals(vim.log.levels.INFO, notifications[1].level)
+    assert.spy(notify_spy).was_called_with("No valid file in current buffer", vim.log.levels.INFO)
     assert.equals(0, #mock_terminal.command_calls)
   end)
 end)

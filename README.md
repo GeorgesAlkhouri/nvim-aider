@@ -34,6 +34,7 @@
 - 📋 `AiderQuickSendBuffer` - Send entire buffer content to Aider
   with an optional prompt
 - 📚 `AiderQuickReadOnlyFile` - Add current buffer as read-only reference file
+- 🌳 `AiderTreeAddReadOnlyFile` - Add a read-only file from nvim-tree to Aider chat
 
 ## 🔗 Requirements
 

@@ -3,7 +3,9 @@ local stub = require("luassert.stub")
 describe("nvim-tree integration", function()
   local nvim_aider
   local nvim_tree_mock
+  local commands = require("nvim_aider.commands")
   local notify_stub
+  local terminal_mock
 
   -- Create mock nvim-tree.api module
   local function create_mock_nvim_tree()
@@ -23,8 +25,56 @@ describe("nvim-tree integration", function()
     nvim_tree_mock = create_mock_nvim_tree()
     nvim_aider = require("nvim_aider")
     nvim_aider.setup()
-    -- Stub vim.notify
-    notify_stub = stub(vim, "notify")
+    -- Create a mock terminal module
+    terminal_mock = stub(require("nvim_aider.terminal"), "command")
+    package.loaded["nvim_aider.terminal"] = terminal_mock
+    notify_stub = stub(vim, "notify", function() end)
+  end)
+
+  describe("add_read_only_file_from_tree", function()
+    it("should add read-only file from tree when valid node selected", function()
+      vim.bo.filetype = "NvimTree"
+      nvim_tree_mock.tree.get_node_under_cursor = function()
+        return { absolute_path = "/path/to/test/file.lua" }
+      end
+
+      -- Mock vim.fn.fnamemodify to return relative path
+      local orig_fnamemodify = vim.fn.fnamemodify
+      vim.fn.fnamemodify = function(path, mod)
+        if mod == ":." then
+          return "path/to/test/file.lua"
+        end
+        return orig_fnamemodify(path, mod)
+      end
+
+      vim.api.nvim_exec2("AiderTreeAddReadOnlyFile", {})
+
+      -- Verify terminal command was called with correct path
+      assert.spy(terminal_mock).was.called_with("/read-only", "path/to/test/file.lua")
+
+      -- Restore original fnamemodify
+      vim.fn.fnamemodify = orig_fnamemodify
+    end)
+
+    it("should show warning when not in nvim-tree buffer", function()
+      vim.bo.filetype = "not-nvim-tree"
+      vim.api.nvim_exec2("AiderTreeAddReadOnlyFile", {})
+
+      assert.stub(notify_stub).was.called_with("Not in nvim-tree buffer", vim.log.levels.WARN)
+    end)
+
+    it("should handle invalid nodes gracefully", function()
+      vim.bo.filetype = "NvimTree"
+      nvim_tree_mock.tree.get_node_under_cursor = function()
+        return nil
+      end
+      vim.api.nvim_exec2("AiderTreeAddReadOnlyFile", {})
+
+      assert.stub(notify_stub).was.called_with("No node found under cursor", vim.log.levels.WARN)
+      local notify_call_count = notify_stub.calls and #notify_stub.calls or 0
+      print("Notification call count:", notify_call_count)
+      assert.equals(1, notify_call_count)
+    end)
   end)
 
   after_each(function()
@@ -36,7 +86,6 @@ describe("nvim-tree integration", function()
   describe("add_file_from_tree", function()
     it("should check if in nvim-tree buffer", function()
       vim.bo.filetype = "not-nvim-tree"
-      -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeAddFile", {})
 
       -- Should show warning
@@ -46,7 +95,6 @@ describe("nvim-tree integration", function()
     it("should handle missing nvim-tree.tree field", function()
       vim.bo.filetype = "NvimTree"
       nvim_tree_mock.tree = nil
-      -- Execute the command directly
       vim.api.nvim_exec2("AiderTreeAddFile", {})
 
       assert

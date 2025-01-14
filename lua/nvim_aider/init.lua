@@ -98,10 +98,11 @@ function M.setup(opts)
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickReadOnlyFile", function()
-    local relative_filepath = utils.get_relative_path()
-    if relative_filepath == nil then
+    local absolute_path = utils.get_absolute_path()
+    if absolute_path == nil then
       vim.notify("No valid file in current buffer", vim.log.levels.INFO)
     else
+      local relative_filepath = vim.fn.fnamemodify(absolute_path, ":.")
       M.terminal.command(commands["read-only"].value, relative_filepath)
     end
   end, {})
