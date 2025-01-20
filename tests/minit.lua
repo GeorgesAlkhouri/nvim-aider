@@ -25,6 +25,7 @@ require("lazy.minit").setup({
       "GeorgesAlkhouri/nvim-aider",
       cmd = {
         "AiderTerminalToggle",
+        "AiderHealth",
       },
       keys = {
         { "<leader>a/", "<cmd>AiderTerminalToggle<cr>", desc = "Open Aider" },

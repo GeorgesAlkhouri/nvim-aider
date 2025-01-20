@@ -25,6 +25,7 @@ describe("nvim_aider", function()
     -- Check that the user commands were created
     local user_commands = vim.api.nvim_get_commands({})
     local expected_commands = {
+      "AiderHealth",
       "AiderTerminalToggle",
       "AiderTerminalSend",
       "AiderQuickSendCommand",
@@ -38,6 +39,11 @@ describe("nvim_aider", function()
     for _, cmd in ipairs(expected_commands) do
       assert(user_commands[cmd], "Expected command '" .. cmd .. "' to be registered after setup()")
     end
+  end)
+
+  it("executes AiderHealth command without error", function()
+    local health_cmd_ok = pcall(vim.cmd, "AiderHealth")
+    assert(health_cmd_ok, "AiderHealth command should execute without error")
   end)
 
   describe("nvim-tree integration", function()

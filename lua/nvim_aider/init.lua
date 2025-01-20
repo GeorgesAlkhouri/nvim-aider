@@ -23,6 +23,10 @@ end
 function M.setup(opts)
   M.config.setup(opts)
 
+  vim.api.nvim_create_user_command("AiderHealth", function()
+    vim.cmd([[checkhealth nvim_aider]])
+  end, { desc = "Run :checkhealth nvim_aider" })
+
   vim.api.nvim_create_user_command("AiderTerminalToggle", function()
     M.terminal.toggle()
   end, {})

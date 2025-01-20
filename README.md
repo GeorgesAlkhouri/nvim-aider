@@ -22,6 +22,7 @@
 
 ## 🎮 Commands
 
+- 🩺 `AiderHealth` - Check if everything is working correctly
 - ⌨️ `AiderTerminalToggle` - Toggle the Aider terminal window
 - 📤 `AiderTerminalSend [text]` - Send text to Aider
   - Without arguments: Opens input prompt
@@ -51,7 +52,7 @@ Using lazy.nvim:
 {
     "GeorgesAlkhouri/nvim-aider",
     cmd = {
-      "AiderTerminalToggle",
+      "AiderTerminalToggle", "AiderHealth",
     },
     keys = {
       { "<leader>a/", "<cmd>AiderTerminalToggle<cr>", desc = "Open Aider" },
