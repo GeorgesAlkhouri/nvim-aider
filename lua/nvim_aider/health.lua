@@ -62,6 +62,14 @@ function M.check()
   else
     health.info("catppuccin plugin not found (optional)")
   end
+
+  -- nvim-tree plugin check
+  local has_nvim_tree = pcall(require, "nvim-tree")
+  if has_nvim_tree then
+    health.ok("nvim-tree plugin found (optional)")
+  else
+    health.info("nvim-tree plugin not found (optional)")
+  end
 end
 
 return M
