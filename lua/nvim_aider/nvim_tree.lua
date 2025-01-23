@@ -1,6 +1,12 @@
 local M = {}
 
 local commands = require("nvim_aider.commands")
+local nvim_tree_api = require("nvim-tree.api")
+
+if not nvim_tree_api.tree then
+  vim.notify("nvim-tree API not available - please check installation", vim.log.levels.ERROR)
+  return {}
+end
 local terminal = require("nvim_aider.terminal")
 
 local function handle_file_from_tree(cmd_value)
@@ -10,12 +16,7 @@ local function handle_file_from_tree(cmd_value)
     return
   end
 
-  local ok, nvim_tree_api = pcall(require, "nvim-tree.api")
-  if not ok then
-    vim.notify("nvim-tree plugin is not installed", vim.log.levels.ERROR)
-    return
-  end
-
+  local nvim_tree_api = require("nvim-tree.api")
   if not nvim_tree_api.tree then
     vim.notify("nvim-tree API has changed - please update the plugin", vim.log.levels.ERROR)
     return
@@ -60,20 +61,17 @@ end
 
 ---@param opts? nvim_aider.Config
 function M.setup(opts)
-  local ok, _ = pcall(require, "nvim-tree")
-  if ok then
-    vim.api.nvim_create_user_command("AiderTreeAddReadOnlyFile", add_read_only_file_from_tree, {
-      desc = "Add read-only file from nvim-tree to Aider chat",
-    })
+  vim.api.nvim_create_user_command("AiderTreeAddReadOnlyFile", add_read_only_file_from_tree, {
+    desc = "Add read-only file from nvim-tree to Aider chat",
+  })
 
-    vim.api.nvim_create_user_command("AiderTreeAddFile", add_file_from_tree, {
-      desc = "Add file from nvim-tree to Aider chat",
-    })
+  vim.api.nvim_create_user_command("AiderTreeAddFile", add_file_from_tree, {
+    desc = "Add file from nvim-tree to Aider chat",
+  })
 
-    vim.api.nvim_create_user_command("AiderTreeDropFile", drop_file_from_tree, {
-      desc = "Drop file from nvim-tree from Aider chat",
-    })
-  end
+  vim.api.nvim_create_user_command("AiderTreeDropFile", drop_file_from_tree, {
+    desc = "Drop file from nvim-tree from Aider chat",
+  })
 end
 
 return M

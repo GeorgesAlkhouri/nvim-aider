@@ -4,6 +4,7 @@ M.config = require("nvim_aider.config")
 M.terminal = require("nvim_aider.terminal")
 
 local commands = require("nvim_aider.commands")
+local nvim_tree = require("nvim_aider.nvim_tree")
 local picker = require("nvim_aider.ui")
 local utils = require("nvim_aider.utils")
 
@@ -111,7 +112,7 @@ function M.setup(opts)
   end, {})
 
   -- Setup nvim-tree integration
-  require("nvim_aider.tree").setup(opts)
+  nvim_tree.setup(opts)
 end
 
 return M
