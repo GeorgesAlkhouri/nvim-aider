@@ -22,8 +22,12 @@ end
 
 ---Toggle terminal visibility
 ---@param opts? nvim_aider.Config
----@return snacks.win
+---@return snacks.win?
 function M.toggle(opts)
+  if vim.fn.executable("aider") == 0 then
+    vim.notify("aider executable not found in PATH", vim.log.levels.ERROR)
+    return
+  end
   local snacks = require("snacks.terminal")
 
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
@@ -37,6 +41,11 @@ end
 ---@param opts? nvim_aider.Config
 ---@param multi_line? boolean
 function M.send(text, opts, multi_line)
+  if vim.fn.executable("aider") == 0 then
+    vim.notify("aider executable not found in PATH", vim.log.levels.ERROR)
+    return
+  end
+
   multi_line = multi_line == nil and true or multi_line
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
 
