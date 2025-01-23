@@ -24,17 +24,6 @@ function M.check()
     })
   end
 
-  -- Check clipboard support
-  if vim.fn.has("clipboard") == 1 then
-    health.ok("Clipboard support")
-  else
-    health.warn("No clipboard support", {
-      "Install xclip/xsel (Linux)",
-      "Install win32yank (Windows)",
-      "Install pbcopy/pbpaste (MacOS)",
-    })
-  end
-
   -- Snacks plugin check
   local has_snacks = pcall(require, "snacks")
   if has_snacks then
@@ -53,6 +42,13 @@ function M.check()
     health.error("telescope.nvim plugin not found", {
       "Install nvim-telescope/telescope.nvim using your plugin manager",
     })
+  end
+
+  -- Check clipboard support
+  if vim.fn.has("clipboard") == 1 then
+    health.ok("System clipboard support (optional)")
+  else
+    health.info("No system clipboard support")
   end
 
   -- Catppuccin plugin check
