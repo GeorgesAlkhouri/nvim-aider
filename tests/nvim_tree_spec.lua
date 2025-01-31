@@ -149,7 +149,5 @@ describe("nvim-tree integration", function()
 
       assert.stub(notify_stub).was.called_with("Not in nvim-tree buffer", vim.log.levels.WARN)
     end)
-
-    -- Add other similar tests as needed
   end)
 end)

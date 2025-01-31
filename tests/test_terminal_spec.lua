@@ -35,6 +35,11 @@ describe("Terminal bracketed paste tests", function()
   after_each(function()
     -- Restore the original vim.api
     vim.api = original_api
+    -- Add this after existing mock cleanup
+    -- Clear all buffers
+    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+      pcall(vim.api.nvim_buf_delete, bufnr, { force = true })
+    end
   end)
 
   it("uses bracketed pasting for multi-line text", function()
