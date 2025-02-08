@@ -33,13 +33,41 @@ describe("Terminal bracketed paste tests", function()
   end)
 
   after_each(function()
-    -- Restore the original vim.api
-    vim.api = original_api
-    -- Add this after existing mock cleanup
-    -- Clear all buffers
-    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-      pcall(vim.api.nvim_buf_delete, bufnr, { force = true })
+    -- 1. Close all windows first to break buffer-window associations
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local success = pcall(vim.api.nvim_win_close, win, true)
+      if not success then
+        vim.schedule(function()
+          pcall(vim.api.nvim_win_close, win, true)
+        end)
+      end
     end
+
+    -- 2. Special handling for terminal buffers
+    vim.api.nvim_create_autocmd("TermClose", {
+      callback = function(args)
+        if vim.api.nvim_buf_is_valid(args.buf) then
+          vim.schedule(function()
+            pcall(vim.api.nvim_buf_delete, args.buf, { force = true })
+          end)
+        end
+      end,
+      nested = true,
+    })
+
+    -- 3. Buffer cleanup with validation
+    vim.schedule(function()
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_valid(bufnr) then
+          local buftype = vim.api.nvim_buf_get_option(bufnr, "buftype")
+          if buftype ~= "terminal" then
+            pcall(vim.api.nvim_buf_delete, bufnr, { force = true })
+          end
+        end
+      end
+    end)
+
+    vim.api = original_api
   end)
 
   it("uses bracketed pasting for multi-line text", function()
