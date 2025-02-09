@@ -12,12 +12,6 @@ load(vim.fn.system("curl -s https://raw.githubusercontent.com/folke/lazy.nvim/ma
 
 -- Setup lazy.nvim
 require("lazy.minit").setup({
-  -- rocks = {
-  --   hererocks = false,
-  -- },
-  -- -- install = {
-  -- --   missing = false,
-  -- -- },
   spec = {
     { dir = vim.uv.cwd() },
     "LazyVim/starter",
@@ -37,7 +31,6 @@ require("lazy.minit").setup({
       },
       dependencies = {
         "folke/snacks.nvim",
-        "nvim-telescope/telescope.nvim",
         --- The below dependencies are optional
         "catppuccin/nvim",
         "nvim-tree/nvim-tree.lua",

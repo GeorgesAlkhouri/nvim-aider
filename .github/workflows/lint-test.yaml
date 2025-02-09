@@ -7,49 +7,9 @@ on:
   pull_request:
 
 jobs:
-  stylua:
-    name: stylua
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: JohnnyMorganz/stylua-action@v4
-        with:
-          version: latest
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --color always --check lua
-
-  tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        nvim-versions: ["stable", "nightly"]
-    name: test
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-
-      - uses: rhysd/action-setup-vim@v1
-        with:
-          neovim: true
-          version: ${{ matrix.nvim-versions }}
-
-      - uses: cachix/install-nix-action@v30
-
-      - uses: cachix/cachix-action@v15
-        with:
-          authToken: ${{ secrets.CACHIX }}
-          name: georgesalkhouri
-
-      - name: Install devenv.sh
-        run: nix profile install nixpkgs#devenv
-
-      - name: Test Cache
-        uses: actions/cache@v4
-        with:
-          path: .tests
-          key: ${{ runner.os }}-${{ matrix.nvim-versions }}-tests-${{ hashFiles('tests/minit.lua', 'devenv.nix', 'devenv.lock') }}
-
-      - name: Run test
-        run: |
-          devenv test
+  ci:
+    uses: folke/github/.github/workflows/ci.yml@main
+    secrets: inherit
+    with:
+      plugin: snacks.nvim
+      repo: folke/snacks.nvim

@@ -14,6 +14,8 @@
 ---@class nvim_aider.Config: snacks.terminal.Opts
 ---@field args? string[]
 ---@field theme? nvim_aider.Theme
+---@field win? snacks.win.Config
+---@field picker_cfg? snacks.picker.layout.Config
 local M = {}
 
 M.defaults = {
@@ -38,8 +40,12 @@ M.defaults = {
     completion_menu_current_bg_color = "#f4dbd6",
   },
   win = {
+    wo = { winbar = "Aider" },
     style = "nvim_aider",
     position = "bottom",
+  },
+  picker_cfg = {
+    preset = "vscode",
   },
 }
 

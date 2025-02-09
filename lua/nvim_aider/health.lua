@@ -34,16 +34,6 @@ function M.check()
     })
   end
 
-  -- Telescope plugin check
-  local has_telescope = pcall(require, "telescope")
-  if has_telescope then
-    health.ok("telescope.nvim plugin found")
-  else
-    health.error("telescope.nvim plugin not found", {
-      "Install nvim-telescope/telescope.nvim using your plugin manager",
-    })
-  end
-
   -- Check clipboard support
   if vim.fn.has("clipboard") == 1 then
     health.ok("System clipboard support (optional)")

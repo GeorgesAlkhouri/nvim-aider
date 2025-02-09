@@ -1,6 +1,5 @@
 local M = {}
 
-local commands = require("nvim_aider.commands")
 local config = require("nvim_aider.config")
 
 ---Create command string list from options

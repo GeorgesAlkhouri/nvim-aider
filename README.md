@@ -28,7 +28,7 @@
   - Without arguments: Opens input prompt
   - With arguments: Sends provided text directly
   - In visual mode: Sends selected text with an optional prompt
-- 🔍 `AiderQuickSendCommand` - List all Aider commands in telescope picker
+- 🔍 `AiderQuickSendCommand` - List all Aider commands from 🍿 Snacks picker
   with option to add prompt after selection
 - 📁 `AiderQuickAddFile` - Add current buffer file to Aider session
 - 🗑️ `AiderQuickDropFile` - Remove current buffer file from Aider session
@@ -41,7 +41,7 @@
 
 🐍 Python: Install `aider-chat`  
 📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier  
-🌙 Lua: `folke/snacks.nvim`, `nvim-telescope/telescope.nvim`,
+🌙 Lua: `folke/snacks.nvim`,  
 _optionals_ `catppuccin/nvim`, `nvim-tree.lua`
 
 ## 📦 Installation
@@ -68,7 +68,6 @@ Using lazy.nvim:
     },
     dependencies = {
       "folke/snacks.nvim",
-      "nvim-telescope/telescope.nvim",
       --- The below dependencies are optional
       "catppuccin/nvim",
       "nvim-tree/nvim-tree.lua",
@@ -89,7 +88,6 @@ require("nvim_aider").setup({
     "--pretty",
     "--stream",
   },
-
   -- Theme colors (automatically uses Catppuccin flavor if available)
   theme = {
     user_input_color = "#a6da95",
@@ -102,14 +100,17 @@ require("nvim_aider").setup({
     completion_menu_current_color = "#181926",
     completion_menu_current_bg_color = "#f4dbd6",
   },
-
+  -- snacks.picker.layout.Config configuration
+  picker_cfg = {
+    preset = "vscode",
+  },
   -- Other snacks.terminal.Opts options
   config = {
     os = { editPreset = "nvim-remote" },
     gui = { nerdFontsVersion = "3" },
   },
-
   win = {
+    wo = { winbar = "Aider" },
     style = "nvim_aider",
     position = "bottom",
   },
