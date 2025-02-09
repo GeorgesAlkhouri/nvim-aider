@@ -2,8 +2,9 @@
 
 🤖 Seamlessly integrate Aider with Neovim for an enhanced AI-assisted coding experience!
 
-![screenshot_1](https://github.com/user-attachments/assets/5d779f73-5441-4d24-8cce-e6dfdc5bf787)
-![scrennshot_2](https://github.com/user-attachments/assets/6e8c3ed4-84d8-49bb-9aba-7d81323864d8)
+<img width="1280" alt="screenshot_1" src="https://github.com/user-attachments/assets/5d779f73-5441-4d24-8cce-e6dfdc5bf787" />
+<img width="1280" alt="screenshot_2" src="https://github.com/user-attachments/assets/3c122846-ca27-42d3-8cbf-f6e5f9b10f69" />
+
 
 > 🚧 This plugin is in initial development. Expect breaking changes and rough edges.  
 > _October 17, 2024_
