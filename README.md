@@ -5,7 +5,6 @@
 <img width="1280" alt="screenshot_1" src="https://github.com/user-attachments/assets/5d779f73-5441-4d24-8cce-e6dfdc5bf787" />
 <img width="1280" alt="screenshot_2" src="https://github.com/user-attachments/assets/3c122846-ca27-42d3-8cbf-f6e5f9b10f69" />
 
-
 > 🚧 This plugin is in initial development. Expect breaking changes and rough edges.  
 > _October 17, 2024_
 
@@ -83,6 +82,8 @@ There is no need to call setup if you don't want to change the default options.
 
 ```lua
 require("nvim_aider").setup({
+  -- Command that executes Aider
+  aider_cmd = "aider",
   -- Command line arguments passed to aider
   args = {
     "--no-auto-commits",

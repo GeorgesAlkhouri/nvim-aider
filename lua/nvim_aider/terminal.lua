@@ -2,31 +2,25 @@ local M = {}
 
 local config = require("nvim_aider.config")
 
----Create command string list from options
 ---@param opts nvim_aider.Config
----@return string[]
+---@return string
 local function create_cmd(opts)
-  local cmd = { "aider" }
+  local cmd = { opts.aider_cmd }
   vim.list_extend(cmd, opts.args or {})
 
   if opts.theme then
     for key, value in pairs(opts.theme) do
-      table.insert(cmd, "--" .. key:gsub("_", "-"))
-      table.insert(cmd, value)
+      table.insert(cmd, "--" .. key:gsub("_", "-") .. "=" .. tostring(value))
     end
   end
 
-  return cmd
+  return table.concat(cmd, " ")
 end
 
 ---Toggle terminal visibility
 ---@param opts? nvim_aider.Config
 ---@return snacks.win?
 function M.toggle(opts)
-  if vim.fn.executable("aider") == 0 then
-    vim.notify("aider executable not found in PATH", vim.log.levels.ERROR)
-    return
-  end
   local snacks = require("snacks.terminal")
 
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
@@ -40,11 +34,6 @@ end
 ---@param opts? nvim_aider.Config
 ---@param multi_line? boolean
 function M.send(text, opts, multi_line)
-  if vim.fn.executable("aider") == 0 then
-    vim.notify("aider executable not found in PATH", vim.log.levels.ERROR)
-    return
-  end
-
   multi_line = multi_line == nil and true or multi_line
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
 

@@ -12,6 +12,7 @@
 ---@field completion_menu_current_bg_color nvim_aider.Color
 
 ---@class nvim_aider.Config: snacks.terminal.Opts
+---@field aider_cmd? string
 ---@field args? string[]
 ---@field theme? nvim_aider.Theme
 ---@field win? snacks.win.Config
@@ -19,6 +20,7 @@
 local M = {}
 
 M.defaults = {
+  aider_cmd = "aider",
   args = {
     "--no-auto-commits",
     "--pretty",

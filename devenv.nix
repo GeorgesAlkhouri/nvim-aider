@@ -6,7 +6,9 @@
   ...
 }:
 let
-  unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+  unstable = import inputs.noospherix.inputsHub.nixpkgs-unstable {
+    system = pkgs.stdenv.system;
+  };
 in
 {
   packages = with unstable; [
