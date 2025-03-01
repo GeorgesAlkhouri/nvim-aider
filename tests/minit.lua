@@ -34,6 +34,23 @@ require("lazy.minit").setup({
         --- The below dependencies are optional
         "catppuccin/nvim",
         "nvim-tree/nvim-tree.lua",
+        {
+          "nvim-neo-tree/neo-tree.nvim",
+          opts = {
+            window = {
+              mappings = {
+                ["+"] = {
+                  "nvim_aider_add",
+                  desc = "add to aider",
+                },
+                ["-"] = {
+                  "nvim_aider_drop",
+                  desc = "drop from aider",
+                },
+              },
+            },
+          },
+        },
       },
       config = true,
     },

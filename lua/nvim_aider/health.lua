@@ -49,6 +49,14 @@ function M.check()
   else
     health.info("nvim-tree plugin not found (optional)")
   end
+
+  -- neo-tree plugin check
+  local has_neo_tree = pcall(require, "neo-tree")
+  if has_neo_tree then
+    health.ok("neo-tree plugin found (optional)")
+  else
+    health.info("neo-tree plugin not found (optional)")
+  end
 end
 
 return M
