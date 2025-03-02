@@ -18,6 +18,21 @@ M.defaults = {
   },
 }
 
+local function check_existing_mappings(mappings)
+  local has_add, has_drop = false, false
+  for _, mapping in pairs(mappings) do
+    if type(mapping) == "table" then
+      if mapping[1] == "nvim_aider_add" then
+        has_add = true
+      end
+      if mapping[1] == "nvim_aider_drop" then
+        has_drop = true
+      end
+    end
+  end
+  return has_add, has_drop
+end
+
 function M.setup(opts)
   if not opts then
     vim.notify(
@@ -29,10 +44,20 @@ function M.setup(opts)
     )
     return
   end
-  opts.window = opts.window or {}
-  opts.window.mappings = opts.window.mappings or {}
 
-  opts.window.mappings = vim.tbl_deep_extend("keep", opts.window.mappings, M.defaults.window.mappings)
+  -- Check for existing command mappings
+  local has_add, has_drop = check_existing_mappings(opts.window.mappings)
+
+  -- Conditional merging
+  local merged = vim.tbl_deep_extend("keep", opts.window.mappings, {})
+  if not has_add then
+    merged["+"] = M.defaults.window.mappings["+"]
+  end
+  if not has_drop then
+    merged["-"] = M.defaults.window.mappings["-"]
+  end
+
+  opts.window.mappings = merged
 
   local ok, neo_tree_commands = pcall(require, "neo-tree.sources.filesystem.commands")
   if ok then
