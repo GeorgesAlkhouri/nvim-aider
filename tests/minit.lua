@@ -36,20 +36,9 @@ require("lazy.minit").setup({
         "nvim-tree/nvim-tree.lua",
         {
           "nvim-neo-tree/neo-tree.nvim",
-          opts = {
-            window = {
-              mappings = {
-                ["+"] = {
-                  "nvim_aider_add",
-                  desc = "add to aider",
-                },
-                ["-"] = {
-                  "nvim_aider_drop",
-                  desc = "drop from aider",
-                },
-              },
-            },
-          },
+          opts = function(_, opts)
+            require("nvim_aider.neo_tree").setup(opts)
+          end,
         },
       },
       config = true,

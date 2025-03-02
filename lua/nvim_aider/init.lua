@@ -110,7 +110,6 @@ function M.setup(opts)
   end, {})
 
   require("nvim_aider.tree").setup(opts)
-  require("nvim_aider.neo_tree").setup(opts)
 end
 
 return M

@@ -3,8 +3,37 @@ local M = {}
 local commands = require("nvim_aider.commands")
 local terminal = require("nvim_aider.terminal")
 
----@param opts? nvim_aider.Config
+M.defaults = {
+  window = {
+    mappings = {
+      ["+"] = {
+        "nvim_aider_add",
+        desc = "add to aider",
+      },
+      ["-"] = {
+        "nvim_aider_drop",
+        desc = "drop from aider",
+      },
+    },
+  },
+}
+
 function M.setup(opts)
+  if not opts then
+    vim.notify(
+      "[nvim-aider] Neo-tree integration requires passing opts.\n"
+        .. "Ensure your Neo-tree config calls:\n"
+        .. "require('nvim_aider.neo_tree').setup(opts)",
+      vim.log.levels.ERROR,
+      { title = "nvim-aider configuration error" }
+    )
+    return
+  end
+  opts.window = opts.window or {}
+  opts.window.mappings = opts.window.mappings or {}
+
+  opts.window.mappings = vim.tbl_deep_extend("keep", opts.window.mappings, M.defaults.window.mappings)
+
   local ok, neo_tree_commands = pcall(require, "neo-tree.sources.filesystem.commands")
   if ok then
     local nvim_aider_add = function(state)
@@ -37,6 +66,14 @@ function M.setup(opts)
     neo_tree_commands.nvim_aider_add_visual = nvim_aider_add_visual
     neo_tree_commands.nvim_aider_drop = nvim_aider_drop
     neo_tree_commands.nvim_aider_drop_visual = nvim_aider_drop_visual
+  else
+    vim.notify(
+      "[nvim-aider] Neo-tree integration requires neo-tree.nvim version 3.30+.\n"
+        .. "Please update Neo-tree or check compatibility if using a custom setup.\n"
+        .. "GitHub: https://github.com/nvim-neo-tree/neo-tree.nvim",
+      vim.log.levels.ERROR,
+      { title = "nvim-aider dependency error" }
+    )
   end
 end
 

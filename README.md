@@ -17,6 +17,8 @@
 - [x] 📤 Send buffers or selections to Aider
 - [x] 💬 Optional user prompt for buffer and selection sends
 - [x] 🔍 Aider command selection UI with fuzzy search and input prompt
+- [x] 🌲➕ [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim)
+      integration also with multi-file/directory selection with visual mode support
 - [x] 🌳 Integration with [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)
       for adding or dropping files directly from the tree interface
 
@@ -42,7 +44,7 @@
 🐍 Python: Install `aider-chat`  
 📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier  
 🌙 Lua: `folke/snacks.nvim`,  
-_optionals_ `catppuccin/nvim`, `nvim-tree.lua`
+_optionals_ `catppuccin/nvim`, `nvim-neo-tree/neo-tree.nvim`, `nvim-tree.lua`
 
 ## 📦 Installation
 
@@ -71,6 +73,20 @@ Using lazy.nvim:
       --- The below dependencies are optional
       "catppuccin/nvim",
       "nvim-tree/nvim-tree.lua",
+      --- Neo-tree integration
+      {
+        "nvim-neo-tree/neo-tree.nvim",
+        opts = function(_, opts)
+          -- Example mapping configuration (already set by default)
+          -- opts.window = {
+          --   mappings = {
+          --     ["+"] = { "nvim_aider_add", desc = "Add to Aider" },
+          --     ["-"] = { "nvim_aider_drop", desc = "Drop from Aider" }
+          --   }
+          -- }
+          require("nvim_aider.neo_tree").setup(opts)
+        end,
+      },
     },
     config = true,
   }
