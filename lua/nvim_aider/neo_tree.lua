@@ -46,7 +46,7 @@ function M.setup(opts)
   end
 
   -- Check for existing command mappings
-  local has_add, has_drop = check_existing_mappings(opts.window.mappings)
+  local has_add, has_drop = check_existing_mappings(opts.window and opts.window.mappings or {})
 
   -- Conditional merging
   local merged = vim.tbl_deep_extend("keep", opts.window.mappings, {})
@@ -69,9 +69,11 @@ function M.setup(opts)
     local nvim_aider_add_visual = function(_, selected_nodes)
       local nodeNames = {}
       for _, node in pairs(selected_nodes) do
-        table.insert(nodeNames, node.name)
+        table.insert(nodeNames, node.path)
       end
-      terminal.command(commands.add.value, table.concat(nodeNames, " "))
+      if #nodeNames > 0 then
+        terminal.command(commands.add.value, table.concat(nodeNames, " "))
+      end
     end
 
     local nvim_aider_drop = function(state)
@@ -82,9 +84,11 @@ function M.setup(opts)
     local nvim_aider_drop_visual = function(_, selected_nodes)
       local nodeNames = {}
       for _, node in pairs(selected_nodes) do
-        table.insert(nodeNames, node.name)
+        table.insert(nodeNames, node.path)
       end
-      terminal.command(commands.drop.value, table.concat(nodeNames, " "))
+      if #nodeNames > 0 then
+        terminal.command(commands.drop.value, table.concat(nodeNames, " "))
+      end
     end
 
     neo_tree_commands.nvim_aider_add = nvim_aider_add
