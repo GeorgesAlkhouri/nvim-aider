@@ -135,6 +135,11 @@ require("nvim_aider").setup({
 })
 ```
 
+## 🧩 Other Aider Neovim plugins
+
+- [aider.nvim](https://github.com/joshuavial/aider.nvim)
+- [aider.vim](https://github.com/nekowasabi/aider.vim)
+
 ---
 
 <div align="center">
