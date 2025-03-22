@@ -7,6 +7,20 @@ local commands = require("nvim_aider.commands")
 local picker = require("nvim_aider.picker")
 local utils = require("nvim_aider.utils")
 
+---@param filepath? string Optional filepath to add, if nil will use current buffer
+---@return nil
+function M.add_file(filepath)
+  local path = filepath
+  if path == nil then
+    path = utils.get_absolute_path()
+    if path == nil then
+      vim.notify("No valid file in current buffer", vim.log.levels.INFO)
+      return
+    end
+  end
+  M.terminal.command(commands.add.value, path)
+end
+
 ---@param opts? nvim_aider.Config
 function M.setup(opts)
   M.config.setup(opts)
@@ -83,12 +97,7 @@ function M.setup(opts)
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickAddFile", function()
-    local filepath = utils.get_absolute_path()
-    if filepath == nil then
-      vim.notify("No valid file in current buffer", vim.log.levels.INFO)
-    else
-      M.terminal.command(commands.add.value, filepath)
-    end
+    M.add_file()
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickDropFile", function()
