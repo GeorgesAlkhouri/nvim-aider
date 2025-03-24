@@ -1,3 +1,5 @@
+config = require("nvim_aider.config")
+
 describe("AiderQuickSendCommand", function()
   local assert = require("luassert")
   local mock = require("luassert.mock")
@@ -40,7 +42,7 @@ describe("AiderQuickSendCommand", function()
     end)
 
     vim.cmd("AiderQuickSendCommand")
-    assert.stub(terminal_mock.command).was_called_with("/test")
+    assert.stub(terminal_mock.command).was_called_with("/test", nil, nil)
     assert.spy(mock_close).was_called()
   end)
 
@@ -80,7 +82,7 @@ describe("AiderQuickSendCommand", function()
     end)
 
     vim.cmd("AiderQuickSendCommand")
-    assert.stub(terminal_mock.command).was_called_with("/input", "user_input")
+    assert.stub(terminal_mock.command).was_called_with("/input", "user_input", nil)
     assert.spy(mock_close).was_called() -- Verify picker closed
   end)
 end)

@@ -2,8 +2,9 @@
 local M = {}
 local config = require("nvim_aider.config")
 
----@param opts? nvim_aider.Config
----@param confirm? fun(picker: snacks.Picker, item: table)
+---Create a picker for Aider commands
+---@param opts? nvim_aider.Config Optional config that will override the base config for this call only
+---@param confirm? fun(picker: snacks.Picker, item: table) Callback function when an item is selected
 function M.create(opts, confirm)
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
   -- Build items from commands

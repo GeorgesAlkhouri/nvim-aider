@@ -18,7 +18,7 @@ local function create_cmd(opts)
 end
 
 ---Toggle terminal visibility
----@param opts? nvim_aider.Config
+---@param opts? nvim_aider.Config Optional config that will override the base config for this call only
 ---@return snacks.win?
 function M.toggle(opts)
   local snacks = require("snacks.terminal")
@@ -31,8 +31,8 @@ end
 
 ---Send text to terminal
 ---@param text string Text to send
----@param opts? nvim_aider.Config
----@param multi_line? boolean
+---@param opts? nvim_aider.Config Optional config that will override the base config for this call only
+---@param multi_line? boolean Whether to send as multi-line text (default: true)
 function M.send(text, opts, multi_line)
   multi_line = multi_line == nil and true or multi_line
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
@@ -65,9 +65,10 @@ function M.send(text, opts, multi_line)
   end
 end
 
----@param command string Aidar command
----@param text? string Text to send
----@param opts? nvim_aider.Config
+---Send a command to the terminal
+---@param command string Aider command (e.g. "/add")
+---@param text? string Text to send after the command
+---@param opts? nvim_aider.Config Optional config that will override the base config for this call only
 function M.command(command, text, opts)
   text = text or ""
 

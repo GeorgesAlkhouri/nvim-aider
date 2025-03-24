@@ -5,7 +5,7 @@
 <img width="1280" alt="screenshot_1" src="https://github.com/user-attachments/assets/5d779f73-5441-4d24-8cce-e6dfdc5bf787" />
 <img width="1280" alt="screenshot_2" src="https://github.com/user-attachments/assets/3c122846-ca27-42d3-8cbf-f6e5f9b10f69" />
 
-> 🚧 This plugin is in initial development. Expect breaking changes and rough edges.  
+> 🚧 This plugin is in initial development. Expect breaking changes and rough edges.
 > _October 17, 2024_
 
 ## 🌟 Features
@@ -17,6 +17,8 @@
 - [x] 📤 Send buffers or selections to Aider
 - [x] 💬 Optional user prompt for buffer and selection sends
 - [x] 🔍 Aider command selection UI with fuzzy search and input prompt
+- [x] 🔌 Fully documented [Lua API](lua/nvim_aider/api.lua) for
+      programmatic interaction and custom integrations
 - [x] 🌲➕ [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim)
       integration also with multi-file/directory selection with visual mode support
 - [x] 🌳 Integration with [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)
@@ -41,9 +43,9 @@
 
 ## 🔗 Requirements
 
-🐍 Python: Install `aider-chat`  
-📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier  
-🌙 Lua: `folke/snacks.nvim`,  
+🐍 Python: Install `aider-chat`
+📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier
+🌙 Lua: `folke/snacks.nvim`,
 _optionals_ `catppuccin/nvim`, `nvim-neo-tree/neo-tree.nvim`, `nvim-tree.lua`
 
 ## 📦 Installation
@@ -134,6 +136,134 @@ require("nvim_aider").setup({
   },
 })
 ```
+
+## 📚 API Reference
+
+The plugin provides a structured API for programmatic integration. Access via `require("nvim_aider").api`
+
+### Core Functions
+
+```lua
+local api = require("nvim_aider").api
+```
+
+#### `health_check()`
+
+Verify plugin health status
+
+```lua
+api.health_check()
+```
+
+#### `toggle_terminal(opts?)`
+
+Toggle Aider terminal window
+
+```lua
+api.toggle_terminal()
+```
+
+---
+
+### Terminal Operations
+
+#### `send_to_terminal(text, opts?)`
+
+Send raw text directly to Aider
+
+```lua
+api.send_to_terminal("Fix the login validation")
+```
+
+#### `send_command(command, input?, opts?)`
+
+Execute specific Aider command
+
+```lua
+api.send_command("/commit", "Add error handling")
+```
+
+---
+
+### File Management
+
+#### `add_file(filepath)`
+
+Add specific file to session
+
+```lua
+api.add_file("/src/utils.lua")
+```
+
+#### `drop_file(filepath)`
+
+Remove file from session
+
+```lua
+api.drop_file("/outdated/legacy.py")
+```
+
+#### `add_current_file()`
+
+Add current buffer's file (uses `add_file` internally)
+
+```lua
+vim.api.nvim_create_autocmd("BufWritePost", {
+  callback = function()
+    api.add_current_file()
+  end
+})
+```
+
+#### `drop_current_file()`
+
+Remove current buffer's file
+
+```lua
+api.drop_current_file()
+```
+
+#### `add_read_only_file()`
+
+Add current buffer as read-only reference
+
+```lua
+api.add_read_only_file()
+```
+
+---
+
+### Buffer Operations
+
+#### `send_buffer_with_prompt(opts?)`
+
+Send entire buffer content with optional prompt
+
+```lua
+api.send_buffer_with_prompt()
+```
+
+---
+
+### UI Components
+
+#### `open_command_picker(opts?, callback?)`
+
+Interactive command selector with custom handling
+
+```lua
+api.open_command_picker(nil, function(picker, item)
+  if item.text == "/custom" then
+    -- Implement custom command handling
+  else
+    -- Default behavior
+    picker:close()
+    api.send_command(item.text)
+  end
+end)
+```
+
+---
 
 ## 🧩 Other Aider Neovim plugins
 

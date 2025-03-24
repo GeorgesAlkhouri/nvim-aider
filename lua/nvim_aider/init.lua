@@ -2,6 +2,7 @@ local M = {}
 
 M.config = require("nvim_aider.config")
 M.terminal = require("nvim_aider.terminal")
+M.api = require("nvim_aider.api")
 
 local commands = require("nvim_aider.commands")
 local picker = require("nvim_aider.picker")
@@ -12,11 +13,11 @@ function M.setup(opts)
   M.config.setup(opts)
 
   vim.api.nvim_create_user_command("AiderHealth", function()
-    vim.cmd([[checkhealth nvim_aider]])
+    M.api.health_check()
   end, { desc = "Run :checkhealth nvim_aider" })
 
   vim.api.nvim_create_user_command("AiderTerminalToggle", function()
-    M.terminal.toggle()
+    M.api.toggle_terminal()
   end, {})
 
   vim.api.nvim_create_user_command("AiderTerminalSend", function(args)
@@ -34,7 +35,7 @@ function M.setup(opts)
           if input ~= "" then
             selected_text = selected_text .. "\n> " .. input
           end
-          M.terminal.send(selected_text)
+          M.api.send_to_terminal(selected_text)
         end
       end)
     else
@@ -42,71 +43,33 @@ function M.setup(opts)
       if args.args == "" then
         vim.ui.input({ prompt = "Send to Aider: " }, function(input)
           if input then
-            M.terminal.send(input)
+            M.api.send_to_terminal(input)
           end
         end)
       else
-        M.terminal.send(args.args)
+        M.api.send_to_terminal(args.args)
       end
     end
   end, { nargs = "?", range = true, desc = "Send text to Aider terminal" })
 
   vim.api.nvim_create_user_command("AiderQuickSendCommand", function()
-    picker.create(opts, function(picker_instance, item)
-      if item.category == "input" then
-        vim.ui.input({ prompt = "Enter input for `" .. item.text .. "` (empty to skip):" }, function(input)
-          if input then
-            M.terminal.command(item.text, input)
-          end
-        end)
-      else
-        M.terminal.command(item.text)
-      end
-      picker_instance:close()
-    end)
+    M.api.open_command_picker(opts)
   end, { desc = "Quick send Aider command" })
 
   vim.api.nvim_create_user_command("AiderQuickSendBuffer", function()
-    local selected_text = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n")
-    local file_type = vim.bo.filetype
-    if file_type == "" then
-      file_type = "text"
-    end
-    vim.ui.input({ prompt = "Add a prompt to your buffer (empty to skip):" }, function(input)
-      if input ~= nil then
-        if input ~= "" then
-          selected_text = selected_text .. "\n> " .. input
-        end
-        M.terminal.send(selected_text)
-      end
-    end)
+    M.api.send_buffer_with_prompt()
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickAddFile", function()
-    local filepath = utils.get_absolute_path()
-    if filepath == nil then
-      vim.notify("No valid file in current buffer", vim.log.levels.INFO)
-    else
-      M.terminal.command(commands.add.value, filepath)
-    end
+    M.api.add_current_file()
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickDropFile", function()
-    local filepath = utils.get_absolute_path()
-    if filepath == nil then
-      vim.notify("No valid file in current buffer", vim.log.levels.INFO)
-    else
-      M.terminal.command(commands.drop.value, filepath)
-    end
+    M.api.drop_current_file()
   end, {})
 
   vim.api.nvim_create_user_command("AiderQuickReadOnlyFile", function()
-    local filepath = utils.get_absolute_path()
-    if filepath == nil then
-      vim.notify("No valid file in current buffer", vim.log.levels.INFO)
-    else
-      M.terminal.command(commands["read-only"].value, filepath)
-    end
+    M.api.add_read_only_file()
   end, {})
 
   require("nvim_aider.tree").setup(opts)
