@@ -1,7 +1,15 @@
 local M = {}
 
 M.config = require("nvim_aider.config")
-M.terminal = require("nvim_aider.terminal")
+M.terminal = setmetatable({}, {
+  __index = function(_, key)
+    vim.notify(
+      '[nvim_aider] require("nvim_aider").terminal is deprecated and will be removed soon.',
+      vim.log.levels.WARN
+    )
+    return require("nvim_aider.terminal")[key]
+  end,
+})
 M.api = require("nvim_aider.api")
 
 local commands = require("nvim_aider.commands")
