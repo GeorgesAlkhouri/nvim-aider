@@ -49,7 +49,7 @@ function M.setup(opts)
   local has_add, has_drop = check_existing_mappings(opts.window and opts.window.mappings or {})
 
   -- Conditional merging
-  local merged = vim.tbl_deep_extend("keep", opts.window.mappings, {})
+  local merged = vim.tbl_deep_extend("keep", (opts.window and opts.window.mappings) or {}, {})
   if not has_add then
     merged["+"] = M.defaults.window.mappings["+"]
   end
@@ -57,6 +57,7 @@ function M.setup(opts)
     merged["-"] = M.defaults.window.mappings["-"]
   end
 
+  opts.window = opts.window or {}
   opts.window.mappings = merged
 
   local ok, neo_tree_commands = pcall(require, "neo-tree.sources.filesystem.commands")

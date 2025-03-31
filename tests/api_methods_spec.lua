@@ -94,9 +94,22 @@ describe("API Methods", function()
   end)
 
   describe("Buffer Operations", function()
+    local test_buf
+
     before_each(function()
+      -- Create a new modifiable buffer
+      test_buf = vim.api.nvim_create_buf(true, true)
+      vim.api.nvim_set_current_buf(test_buf)
+      vim.bo[test_buf].modifiable = true
+
       utils_mock.get_absolute_path.returns("/project/file.lua")
-      vim.api.nvim_buf_set_lines(0, 0, -1, false, { "line1", "line2" })
+      vim.api.nvim_buf_set_lines(test_buf, 0, -1, false, { "line1", "line2" })
+    end)
+
+    after_each(function()
+      if vim.api.nvim_buf_is_valid(test_buf) then
+        vim.api.nvim_buf_delete(test_buf, { force = true })
+      end
     end)
 
     it("send_buffer_with_prompt with input", function()
