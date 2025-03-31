@@ -15,17 +15,17 @@ local COMMAND_PREFIX = "/"
 local commands = {
   add = {
     value = COMMAND_PREFIX .. "add",
-    description = "Add files to the chat for editing or detailed review",
+    description = "Add files to the chat so aider can edit them or review them in detail",
     category = "input",
   },
   architect = {
     value = COMMAND_PREFIX .. "architect",
-    description = "Enter architect mode for high-level design discussions",
+    description = "Enter architect/editor mode using two different models. If no prompt is provided, switches to architect/editor mode",
     category = "input",
   },
   ask = {
     value = COMMAND_PREFIX .. "ask",
-    description = "Ask questions about the codebase without editing files",
+    description = "Ask questions about the code base without editing any files. If no prompt is provided, switches to ask mode",
     category = "input",
   },
   ["chat-mode"] = {
@@ -40,27 +40,52 @@ local commands = {
   },
   code = {
     value = COMMAND_PREFIX .. "code",
-    description = "Request changes to your code",
+    description = "Ask for changes to your code. If no prompt is provided, switches to code mode",
     category = "input",
   },
   commit = {
     value = COMMAND_PREFIX .. "commit",
-    description = "Commit edits made outside the chat to the repo",
+    description = "Commit edits to the repo made outside the chat (commit message optional)",
+    category = "input",
+  },
+  context = {
+    value = COMMAND_PREFIX .. "context",
+    description = "Enter context mode to see surrounding code context. If no prompt is provided, switches to context mode",
     category = "input",
   },
   copy = {
     value = COMMAND_PREFIX .. "copy",
-    description = "Copy the last assistant message to clipboard",
+    description = "Copy the last assistant message to the clipboard",
+    category = "direct",
+  },
+  ["copy-context"] = {
+    value = COMMAND_PREFIX .. "copy-context",
+    description = "Copy the current chat context as markdown, suitable for pasting into a web UI",
     category = "direct",
   },
   diff = {
     value = COMMAND_PREFIX .. "diff",
-    description = "Display changes diff since the last message",
+    description = "Display the diff of changes since the last message",
     category = "direct",
   },
   drop = {
     value = COMMAND_PREFIX .. "drop",
-    description = "Remove files from chat session to free context space",
+    description = "Remove files from the chat session to free up context space",
+    category = "input",
+  },
+  edit = {
+    value = COMMAND_PREFIX .. "edit",
+    description = "Alias for /editor: Open an editor to write a prompt",
+    category = "input",
+  },
+  editor = {
+    value = COMMAND_PREFIX .. "editor",
+    description = "Open an editor to write a prompt",
+    category = "input",
+  },
+  ["editor-model"] = {
+    value = COMMAND_PREFIX .. "editor-model",
+    description = "Switch the Editor Model to a new LLM",
     category = "input",
   },
   exit = {
@@ -80,7 +105,7 @@ local commands = {
   },
   lint = {
     value = COMMAND_PREFIX .. "lint",
-    description = "Lint and fix in-chat files or all dirty files",
+    description = "Lint and fix in-chat files or all dirty files if none are in chat",
     category = "direct",
   },
   load = {
@@ -90,12 +115,12 @@ local commands = {
   },
   ls = {
     value = COMMAND_PREFIX .. "ls",
-    description = "List known files and their chat session status",
+    description = "List all known files and indicate which are included in the chat session",
     category = "direct",
   },
   map = {
     value = COMMAND_PREFIX .. "map",
-    description = "Print the current repository map",
+    description = "Print out the current repository map",
     category = "direct",
   },
   ["map-refresh"] = {
@@ -105,7 +130,7 @@ local commands = {
   },
   model = {
     value = COMMAND_PREFIX .. "model",
-    description = "Switch to a new LLM",
+    description = "Switch the Main Model to a new LLM",
     category = "input",
   },
   models = {
@@ -113,9 +138,14 @@ local commands = {
     description = "Search the list of available models",
     category = "direct",
   },
+  ["multiline-mode"] = {
+    value = COMMAND_PREFIX .. "multiline-mode",
+    description = "Toggle multiline mode (swap behavior of Enter and Meta+Enter)",
+    category = "direct",
+  },
   paste = {
     value = COMMAND_PREFIX .. "paste",
-    description = "Paste image/text from clipboard into chat",
+    description = "Paste image/text from the clipboard into the chat (optionally provide a name for the image)",
     category = "direct",
   },
   quit = {
@@ -125,7 +155,12 @@ local commands = {
   },
   ["read-only"] = {
     value = COMMAND_PREFIX .. "read-only",
-    description = "Add reference files to chat, not for editing",
+    description = "Add files to the chat for reference only (not for editing) or make added files read-only",
+    category = "input",
+  },
+  ["reasoning-effort"] = {
+    value = COMMAND_PREFIX .. "reasoning-effort",
+    description = "Set the reasoning effort level (a number or low/medium/high, depending on model)",
     category = "input",
   },
   report = {
@@ -135,47 +170,57 @@ local commands = {
   },
   reset = {
     value = COMMAND_PREFIX .. "reset",
-    description = "Drop all files and clear chat history",
+    description = "Drop all files and clear the chat history",
     category = "direct",
   },
   run = {
     value = COMMAND_PREFIX .. "run",
-    description = "Run a shell command, optionally add output to chat",
+    description = "Run a shell command and optionally add the output to the chat (alias: !)",
     category = "input",
   },
   save = {
     value = COMMAND_PREFIX .. "save",
-    description = "Save commands to reconstruct current chat session",
+    description = "Save commands to a file that can reconstruct the current chat session",
     category = "direct",
   },
   settings = {
     value = COMMAND_PREFIX .. "settings",
-    description = "Print current settings",
+    description = "Print out the current settings",
     category = "direct",
   },
   test = {
     value = COMMAND_PREFIX .. "test",
-    description = "Run command, add output to chat on non-zero exit",
+    description = "Run a shell command and add the output to the chat on non-zero exit code",
     category = "direct",
+  },
+  ["think-tokens"] = {
+    value = COMMAND_PREFIX .. "think-tokens",
+    description = "Set the thinking token budget (e.g. 8096, 8k, 10.5k, 0.5M)",
+    category = "input",
   },
   tokens = {
     value = COMMAND_PREFIX .. "tokens",
-    description = "Report tokens used by current chat context",
+    description = "Report on the number of tokens used by the current chat context",
     category = "direct",
   },
   undo = {
     value = COMMAND_PREFIX .. "undo",
-    description = "Undo last git commit if done by aider",
+    description = "Undo the last git commit if it was done by aider",
     category = "direct",
   },
-  -- voice = {
-  --   value = COMMAND_PREFIX .. "voice",
-  --   description = "Record and transcribe voice input",
-  --   category = "direct",
-  -- },
+  voice = {
+    value = COMMAND_PREFIX .. "voice",
+    description = "Record and transcribe voice input",
+    category = "direct",
+  },
+  ["weak-model"] = {
+    value = COMMAND_PREFIX .. "weak-model",
+    description = "Switch the Weak Model to a new LLM",
+    category = "input",
+  },
   web = {
     value = COMMAND_PREFIX .. "web",
-    description = "Scrape webpage, convert to markdown, send in message",
+    description = "Scrape a webpage, convert it to markdown, and send it in a message",
     category = "input",
   },
 }
