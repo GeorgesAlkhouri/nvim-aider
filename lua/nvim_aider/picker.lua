@@ -32,7 +32,7 @@ function M.create(opts, confirm)
     end,
 
     confirm = confirm,
-    prompt = "Aider Commands > ",
+    prompt = "Aider \\ Commands > ",
   })
 end
 

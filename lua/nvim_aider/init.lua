@@ -4,13 +4,33 @@ M.config = require("nvim_aider.config")
 M.terminal = require("nvim_aider.terminal")
 M.api = require("nvim_aider.api")
 
-local commands = require("nvim_aider.commands")
-local picker = require("nvim_aider.picker")
+local commands_menu = require("nvim_aider.commands_menu")
 local utils = require("nvim_aider.utils")
 
 ---@param opts? nvim_aider.Config
 function M.setup(opts)
   M.config.setup(opts)
+
+  -- Replace existing Aider command with this:
+  vim.api.nvim_create_user_command("Aider", function(opts)
+    if #opts.fargs == 0 then
+      commands_menu._menu()
+    else
+      commands_menu._load_command(opts.fargs)
+    end
+  end, {
+    desc = "Aider command interface",
+    nargs = "*",
+    complete = function(_, cmd_line)
+      local matches = {}
+      for name in pairs(commands_menu.commands) do
+        if name:match("^" .. cmd_line:sub(-#name)) then
+          table.insert(matches, name)
+        end
+      end
+      return matches
+    end,
+  })
 
   vim.api.nvim_create_user_command("AiderHealth", function()
     M.api.health_check()
