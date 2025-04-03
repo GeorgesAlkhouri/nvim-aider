@@ -95,6 +95,11 @@ describe("API Methods", function()
 
   describe("Buffer Operations", function()
     before_each(function()
+      -- Create a new modifiable buffer for each test
+      local buf = vim.api.nvim_create_buf(true, true)
+      vim.api.nvim_set_current_buf(buf)
+      vim.api.nvim_buf_set_option(buf, "modifiable", true)
+
       utils_mock.get_absolute_path.returns("/project/file.lua")
       vim.api.nvim_buf_set_lines(0, 0, -1, false, { "line1", "line2" })
     end)
