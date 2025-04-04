@@ -63,6 +63,9 @@ function M._load_command(args)
         table.remove(args, 1)
         commands[cmd].subcommands[subcmd].impl(unpack(args))
         return
+      elseif subcmd then
+        vim.notify("Invalid Aider subcommand: " .. subcmd .. " for command: " .. cmd, vim.log.levels.INFO)
+        return
       end
     end
     table.remove(args, 1)
