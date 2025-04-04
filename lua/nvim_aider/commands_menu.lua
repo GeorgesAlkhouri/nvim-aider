@@ -36,6 +36,14 @@ local commands = {
     impl = function()
       require("nvim_aider.api").add_current_file()
     end,
+    subcommands = {
+      readonly = {
+        doc = "Add current file as read-only",
+        impl = function()
+          require("nvim_aider.api").add_read_only_file()
+        end,
+      },
+    },
   },
   drop = {
     doc = "Remove current file from session",
@@ -43,17 +51,20 @@ local commands = {
       require("nvim_aider.api").drop_current_file()
     end,
   },
-  readonly = {
-    doc = "Add current file as read-only",
-    impl = function()
-      require("nvim_aider.api").add_read_only_file()
-    end,
-  },
 }
 
 function M._load_command(args)
   local cmd = args[1]
   if commands[cmd] then
+    if commands[cmd].subcommands then
+      local subcmd = args[2]
+      if subcmd and commands[cmd].subcommands[subcmd] then
+        table.remove(args, 1)
+        table.remove(args, 1)
+        commands[cmd].subcommands[subcmd].impl(unpack(args))
+        return
+      end
+    end
     table.remove(args, 1)
     commands[cmd].impl(unpack(args))
   else
@@ -67,13 +78,30 @@ function M._menu()
 
   -- Build picker items and calculate longest command name
   for name, cmd in pairs(commands) do
+    -- For commands with subcommands, show them as parent items
     table.insert(items, {
       text = name,
       description = cmd.doc,
       category = "command",
       name = name,
+      subcommands = cmd.subcommands,
     })
     longest_cmd = math.max(longest_cmd, #name)
+
+    -- Add subcommands if they exist
+    if cmd.subcommands then
+      for subname, subcmd in pairs(cmd.subcommands) do
+        local full_name = name .. " " .. subname
+        table.insert(items, {
+          text = full_name,
+          description = subcmd.doc,
+          category = "command",
+          name = full_name,
+          parent = name,
+        })
+        longest_cmd = math.max(longest_cmd, #full_name)
+      end
+    end
   end
 
   longest_cmd = longest_cmd + 2 -- Add padding
@@ -83,8 +111,12 @@ function M._menu()
     items = items,
     layout = require("nvim_aider.config").options.picker_cfg,
     format = function(item)
+      local display_text = item.text
+      if item.parent then
+        display_text = string.rep(" ", 2) .. display_text:sub(#item.parent + 2)
+      end
       return {
-        { ("%-" .. longest_cmd .. "s"):format(item.text), "Function" },
+        { ("%-" .. longest_cmd .. "s"):format(display_text), "Function" },
         { " " .. item.description, "Comment" },
       }
     end,

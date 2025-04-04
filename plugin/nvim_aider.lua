@@ -11,18 +11,28 @@ end, {
   nargs = "*",
   complete = function(arg_lead, line)
     local cmds = require("nvim_aider.commands_menu").commands
+    local parts = vim.split(line:gsub("%s+", " "), " ")
 
-    -- Complete subcommands when typing main command
-    if line:match("^Aider%s+%w*$") then
-      return vim
-        .iter(vim.tbl_keys(cmds))
-        :filter(function(key)
-          return key:find(arg_lead) == 1
-        end)
-        :totable()
+    -- Complete subcommands when typing after main command
+    if #parts >= 2 then
+      local main_cmd = parts[2]
+      if cmds[main_cmd] and cmds[main_cmd].subcommands then
+        return vim
+          .iter(vim.tbl_keys(cmds[main_cmd].subcommands))
+          :filter(function(key)
+            return key:find(arg_lead) == 1
+          end)
+          :totable()
+      end
     end
 
-    return {}
+    -- Complete main commands
+    return vim
+      .iter(vim.tbl_keys(cmds))
+      :filter(function(key)
+        return key:find(arg_lead) == 1
+      end)
+      :totable()
   end,
 })
 
