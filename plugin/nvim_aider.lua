@@ -38,11 +38,11 @@ end, {
 
 vim.api.nvim_create_user_command("AiderHealth", function()
   require("nvim_aider.api").health_check()
-end, { desc = "Run :checkhealth nvim_aider" })
+end, { desc = "Run nvim-aider health check" })
 
 vim.api.nvim_create_user_command("AiderTerminalToggle", function()
   require("nvim_aider.api").toggle_terminal()
-end, {})
+end, { desc = "Toggle Aider terminal" })
 
 vim.api.nvim_create_user_command("AiderTerminalSend", function(args)
   require("nvim_aider.api").send_to_terminal(args.args)
@@ -50,23 +50,23 @@ end, { nargs = "?", range = true, desc = "Send text to Aider terminal" })
 
 vim.api.nvim_create_user_command("AiderQuickSendCommand", function()
   require("nvim_aider.api").open_command_picker()
-end, { desc = "Quick send Aider command" })
+end, { desc = "Send Aider slash command to Aider terminal" })
 
 vim.api.nvim_create_user_command("AiderQuickSendBuffer", function()
   require("nvim_aider.api").send_buffer_with_prompt()
-end, {})
+end, { desc = "Send buffer to Aider terminal" })
 
 vim.api.nvim_create_user_command("AiderQuickAddFile", function()
   require("nvim_aider.api").add_current_file()
-end, {})
+end, { desc = "Add current file to Aider session" })
 
 vim.api.nvim_create_user_command("AiderQuickDropFile", function()
   require("nvim_aider.api").drop_current_file()
-end, {})
+end, { desc = "Remove current file from Aider session" })
 
 vim.api.nvim_create_user_command("AiderQuickReadOnlyFile", function()
   require("nvim_aider.api").add_read_only_file()
-end, {})
+end, { desc = "Add current file as read-only to Aider session" })
 
 -- Add nvim-tree integration commands if available
 local ok, _ = pcall(require, "nvim-tree")

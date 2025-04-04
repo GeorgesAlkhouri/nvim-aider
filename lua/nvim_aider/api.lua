@@ -22,7 +22,6 @@ end
 function M.send_to_terminal(text, opts)
   local mode = vim.fn.mode()
   local selected_text = text or ""
-  vim.notify("Selected text: " .. selected_text, vim.log.levels.DEBUG)
   -- Visual mode handling
   if vim.tbl_contains({ "v", "V", "" }, mode) then
     local lines = vim.fn.getregion(vim.fn.getpos("v"), vim.fn.getpos("."), { type = mode })

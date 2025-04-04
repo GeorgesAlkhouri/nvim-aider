@@ -2,43 +2,43 @@ local M = {}
 
 local commands = {
   health = {
-    doc = "Run health check",
+    doc = "Run nvim-aider health check",
     impl = function()
       require("nvim_aider.api").health_check()
     end,
   },
   toggle = {
-    doc = "Toggle aider terminal",
+    doc = "Toggle Aider terminal",
     impl = function()
       require("nvim_aider.api").toggle_terminal()
     end,
   },
   send = {
-    doc = "Send text to aider terminal",
+    doc = "Send text to Aider terminal",
     impl = function(input)
       require("nvim_aider.api").send_to_terminal(input)
     end,
   },
   command = {
-    doc = "Quick send Aider command",
+    doc = "Send Aider slash command to Aider terminal",
     impl = function()
       require("nvim_aider.api").open_command_picker()
     end,
   },
   buffer = {
-    doc = "Send buffer with prompt",
+    doc = "Send buffer to Aider terminal",
     impl = function()
       require("nvim_aider.api").send_buffer_with_prompt()
     end,
   },
   add = {
-    doc = "Add current file to session",
+    doc = "Add current file to Aider session",
     impl = function()
       require("nvim_aider.api").add_current_file()
     end,
     subcommands = {
       readonly = {
-        doc = "Add current file as read-only",
+        doc = "Add current file as read-only to Aider session",
         impl = function()
           require("nvim_aider.api").add_read_only_file()
         end,
@@ -46,7 +46,7 @@ local commands = {
     },
   },
   drop = {
-    doc = "Remove current file from session",
+    doc = "Remove current file from Aider session",
     impl = function()
       require("nvim_aider.api").drop_current_file()
     end,
