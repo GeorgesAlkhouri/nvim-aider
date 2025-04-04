@@ -32,7 +32,6 @@ describe("API Methods", function()
   after_each(function()
     -- Clean up modules
     package.loaded["nvim_aider"] = nil
-    package.loaded["nvim_aider.commands"] = nil
     package.loaded["nvim_aider.health"] = nil
     package.loaded["nvim_aider.config"] = nil
 

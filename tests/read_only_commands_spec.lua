@@ -29,8 +29,7 @@ describe("Read-only Commands", function()
     -- Set up the plugin
     nvim_aider.setup()
 
-    -- Execute the command directly
-    vim.cmd("AiderQuickReadOnlyFile")
+    require("nvim_aider.api").add_read_only_file()
     -- Give a small delay for the command to execute
     vim.wait(100)
 
@@ -63,10 +62,14 @@ describe("Read-only Commands", function()
     nvim_aider.setup()
 
     -- Execute the command
-    local ok, _ = pcall(vim.api.nvim_command, "AiderQuickReadOnlyFile")
+    local ok, _ = pcall(function()
+      require("nvim_aider.api").add_read_only_file()
+    end)
     assert(ok, "Command should execute without error")
 
-    local ok, _ = pcall(vim.api.nvim_command, "AiderQuickReadOnlyFile")
+    local ok, _ = pcall(function()
+      require("nvim_aider.api").add_read_only_file()
+    end)
     assert(ok, "Command should execute without error")
 
     -- Verify notifications

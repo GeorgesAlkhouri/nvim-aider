@@ -46,34 +46,16 @@ local function handle_file_from_tree(cmd_value)
   terminal.command(cmd_value, relative_path)
 end
 
-local function add_read_only_file_from_tree()
+function M.add_read_only_file_from_tree()
   handle_file_from_tree(commands["read-only"].value)
 end
 
-local function add_file_from_tree()
+function M.add_file_from_tree()
   handle_file_from_tree(commands.add.value)
 end
 
-local function drop_file_from_tree()
+function M.drop_file_from_tree()
   handle_file_from_tree(commands.drop.value)
-end
-
----@param opts? nvim_aider.Config
-function M.setup(opts)
-  local ok, _ = pcall(require, "nvim-tree")
-  if ok then
-    vim.api.nvim_create_user_command("AiderTreeAddReadOnlyFile", add_read_only_file_from_tree, {
-      desc = "Add read-only file from nvim-tree to Aider chat",
-    })
-
-    vim.api.nvim_create_user_command("AiderTreeAddFile", add_file_from_tree, {
-      desc = "Add file from nvim-tree to Aider chat",
-    })
-
-    vim.api.nvim_create_user_command("AiderTreeDropFile", drop_file_from_tree, {
-      desc = "Drop file from nvim-tree from Aider chat",
-    })
-  end
 end
 
 return M

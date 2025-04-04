@@ -57,7 +57,7 @@ function M._load_command(args)
     table.remove(args, 1)
     commands[cmd].impl(unpack(args))
   else
-    vim.notify("Invalid Aider command: " .. (cmd or ""), vim.log.levels.ERROR)
+    vim.notify("Invalid Aider command: " .. (cmd or ""), vim.log.levels.INFO)
   end
 end
 

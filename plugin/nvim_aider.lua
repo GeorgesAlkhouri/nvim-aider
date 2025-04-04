@@ -85,3 +85,25 @@ end, {})
 vim.api.nvim_create_user_command("AiderQuickReadOnlyFile", function()
   require("nvim_aider.api").add_read_only_file()
 end, {})
+
+-- Add nvim-tree integration commands if available
+local ok, _ = pcall(require, "nvim-tree")
+if ok then
+  vim.api.nvim_create_user_command("AiderTreeAddReadOnlyFile", function()
+    require("nvim_aider.tree").add_read_only_file_from_tree()
+  end, {
+    desc = "Add read-only file from nvim-tree to Aider chat",
+  })
+
+  vim.api.nvim_create_user_command("AiderTreeAddFile", function()
+    require("nvim_aider.tree").add_file_from_tree()
+  end, {
+    desc = "Add file from nvim-tree to Aider chat",
+  })
+
+  vim.api.nvim_create_user_command("AiderTreeDropFile", function()
+    require("nvim_aider.tree").drop_file_from_tree()
+  end, {
+    desc = "Drop file from nvim-tree from Aider chat",
+  })
+end
