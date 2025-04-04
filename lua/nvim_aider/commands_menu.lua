@@ -7,7 +7,7 @@ local commands = {
       require("nvim_aider.api").health_check()
     end,
   },
-  terminal = {
+  toggle = {
     doc = "Toggle aider terminal",
     impl = function()
       require("nvim_aider.api").toggle_terminal()

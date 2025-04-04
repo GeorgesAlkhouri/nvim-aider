@@ -35,35 +35,7 @@ vim.api.nvim_create_user_command("AiderTerminalToggle", function()
 end, {})
 
 vim.api.nvim_create_user_command("AiderTerminalSend", function(args)
-  local mode = vim.fn.mode()
-  if vim.tbl_contains({ "v", "V", "" }, mode) then
-    -- Visual mode behavior
-    local lines = vim.fn.getregion(vim.fn.getpos("v"), vim.fn.getpos("."), { type = mode })
-    local selected_text = table.concat(lines, "\n")
-    local file_type = vim.bo.filetype
-    if file_type == "" then
-      file_type = "text"
-    end
-    vim.ui.input({ prompt = "Add a prompt to your selection (empty to skip):" }, function(input)
-      if input ~= nil then
-        if input ~= "" then
-          selected_text = selected_text .. "\n> " .. input
-        end
-        require("nvim_aider.api").send_to_terminal(selected_text)
-      end
-    end)
-  else
-    -- Normal mode behavior
-    if args.args == "" then
-      vim.ui.input({ prompt = "Send to Aider: " }, function(input)
-        if input then
-          require("nvim_aider.api").send_to_terminal(input)
-        end
-      end)
-    else
-      require("nvim_aider.api").send_to_terminal(args.args)
-    end
-  end
+  require("nvim_aider.api").send_to_terminal(args.args)
 end, { nargs = "?", range = true, desc = "Send text to Aider terminal" })
 
 vim.api.nvim_create_user_command("AiderQuickSendCommand", function()
