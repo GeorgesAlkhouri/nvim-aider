@@ -78,9 +78,41 @@ end
 function M._menu()
   local items = {}
   local longest_cmd = 0
+  -- Capture the original buffer before creating the picker
+  -- This is critical because the picker will change the active buffer context
+  local original_buf = vim.api.nvim_get_current_buf()
+
+  -- Create wrapped command table to preserve buffer context
+  -- This wrapping is necessary because:
+  -- 1. The picker interface creates its own buffer
+  -- 2. Commands executed from the picker would otherwise use the picker's buffer
+  -- 3. File operations need to reference the user's original editing buffer
+  local wrapped_commands = {}
+  for name, cmd in pairs(commands) do
+    local new_cmd = vim.deepcopy(cmd)
+    -- Wrap the command implementation to restore original buffer context
+    new_cmd.impl = function()
+      -- Switch back to the original buffer before execution
+      vim.api.nvim_set_current_buf(original_buf)
+      -- Execute the original command implementation
+      cmd.impl()
+    end
+
+    -- Wrap subcommands using the same buffer preservation logic
+    if new_cmd.subcommands then
+      for subname, subcmd in pairs(new_cmd.subcommands) do
+        subcmd.impl = function()
+          vim.api.nvim_set_current_buf(original_buf)
+          cmd.subcommands[subname].impl()
+        end
+      end
+    end
+
+    wrapped_commands[name] = new_cmd
+  end
 
   -- Build picker items and calculate longest command name
-  for name, cmd in pairs(commands) do
+  for name, cmd in pairs(wrapped_commands) do
     -- For commands with subcommands, show them as parent items
     table.insert(items, {
       text = name,
@@ -99,7 +131,8 @@ function M._menu()
           text = full_name,
           description = subcmd.doc,
           category = "command",
-          name = full_name,
+          name = name,
+          subname = subname,
           parent = name,
         })
         longest_cmd = math.max(longest_cmd, #full_name)
@@ -125,8 +158,14 @@ function M._menu()
     end,
     prompt = "Aider Commands > ",
     confirm = function(picker_instance, item)
-      if item and commands[item.text] then
-        commands[item.text].impl()
+      if item then
+        if item.subname then
+          -- Execute subcommand
+          wrapped_commands[item.name].subcommands[item.subname].impl()
+        elseif wrapped_commands[item.name] then
+          -- Execute main command
+          wrapped_commands[item.name].impl()
+        end
       end
       picker_instance:close()
     end,
