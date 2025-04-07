@@ -26,20 +26,27 @@
 
 ## 🎮 Commands
 
-- 🩺 `AiderHealth` - Check if everything is working correctly
-- ⌨️ `AiderTerminalToggle` - Toggle the Aider terminal window
-- 📤 `AiderTerminalSend [text]` - Send text to Aider
-  - Without arguments: Opens input prompt
-  - With arguments: Sends provided text directly
-  - In visual mode: Sends selected text with an optional prompt
-- 🔍 `AiderQuickSendCommand` - List all Aider commands from 🍿 Snacks picker
-  with option to add prompt after selection
-- 📁 `AiderQuickAddFile` - Add current buffer file to Aider session
-- 🗑️ `AiderQuickDropFile` - Remove current buffer file from Aider session
-- 📋 `AiderQuickSendBuffer` - Send entire buffer content to Aider
-  with an optional prompt
-- 📚 `AiderQuickReadOnlyFile` - Add current buffer as read-only reference file
-- 🌳 `AiderTreeAddReadOnlyFile` - Add a read-only file from nvim-tree to Aider chat
+- `Aider` - Open interactive command menu
+
+  ```text
+  Commands:
+  health      🩺 Check plugin health status
+  toggle      🎛️ Toggle Aider terminal window
+  send        📤 Send text to Aider (prompt if empty)
+  command     ⌨️ Show slash commands
+  buffer      📄 Send current buffer
+  add         ➕ Add file to session
+   > readonly 👀 Add as read-only reference
+  drop        🗑️ Remove file from session
+  ```
+
+- ⚡ Direct command execution examples:
+
+  ```vim
+  :Aider health
+  :Aider add readonly
+  :Aider send "Fix login validation"
+  ```
 
 ## 🔗 Requirements
 
@@ -55,17 +62,16 @@ Using lazy.nvim:
 ```lua
 {
     "GeorgesAlkhouri/nvim-aider",
-    cmd = {
-      "AiderTerminalToggle", "AiderHealth",
-    },
+    cmd = "Aider",
+    -- Example key mappings for common actions:
     keys = {
-      { "<leader>a/", "<cmd>AiderTerminalToggle<cr>", desc = "Open Aider" },
-      { "<leader>as", "<cmd>AiderTerminalSend<cr>", desc = "Send to Aider", mode = { "n", "v" } },
-      { "<leader>ac", "<cmd>AiderQuickSendCommand<cr>", desc = "Send Command To Aider" },
-      { "<leader>ab", "<cmd>AiderQuickSendBuffer<cr>", desc = "Send Buffer To Aider" },
-      { "<leader>a+", "<cmd>AiderQuickAddFile<cr>", desc = "Add File to Aider" },
-      { "<leader>a-", "<cmd>AiderQuickDropFile<cr>", desc = "Drop File from Aider" },
-      { "<leader>ar", "<cmd>AiderQuickReadOnlyFile<cr>", desc = "Add File as Read-Only" },
+      { "<leader>a/", "<cmd>Aider toggle<cr>", desc = "Toggle Aider" },
+      { "<leader>as", "<cmd>Aider send<cr>", desc = "Send to Aider", mode = { "n", "v" } },
+      { "<leader>ac", "<cmd>Aider command<cr>", desc = "Aider Commands" },
+      { "<leader>ab", "<cmd>Aider buffer<cr>", desc = "Send Buffer" },
+      { "<leader>a+", "<cmd>Aider add<cr>", desc = "Add File" },
+      { "<leader>a-", "<cmd>Aider drop<cr>", desc = "Drop File" },
+      { "<leader>ar", "<cmd>Aider add readonly<cr>", desc = "Add Read-Only" },
       -- Example nvim-tree.lua integration if needed
       { "<leader>a+", "<cmd>AiderTreeAddFile<cr>", desc = "Add File from Tree to Aider", ft = "NvimTree" },
       { "<leader>a-", "<cmd>AiderTreeDropFile<cr>", desc = "Drop File from Tree from Aider", ft = "NvimTree" },

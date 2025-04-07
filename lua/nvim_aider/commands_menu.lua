@@ -149,7 +149,7 @@ function M._menu()
     format = function(item)
       local display_text = item.text
       if item.parent then
-        display_text = string.rep(" ", 2) .. display_text:sub(#item.parent + 2)
+        display_text = " > " .. display_text:sub(#item.parent + 2) -- Unicode LEFT VERTICAL BOX LINE
       end
       return {
         { ("%-" .. longest_cmd .. "s"):format(display_text), "Function" },
