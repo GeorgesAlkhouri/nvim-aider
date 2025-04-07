@@ -117,4 +117,50 @@ describe("Commands Menu", function()
       assert.stub(api_mock.send_to_terminal).was_called_with(nil)
     end)
   end)
+
+  describe("Command Menu Structure", function()
+    local menu_items
+    local commands_menu
+
+    before_each(function()
+      commands_menu = require("nvim_aider.commands_menu")
+
+      -- Mock snacks.picker
+      package.loaded["snacks.picker"] = function(opts)
+        menu_items = opts.items
+        return { close = function() end }
+      end
+
+      commands_menu._menu()
+    end)
+
+    after_each(function()
+      package.loaded["snacks.picker"] = nil
+    end)
+
+    it("contains all top-level commands", function()
+      local expected = { "health", "toggle", "send", "command", "buffer", "add", "drop" }
+      local found = {}
+      for _, item in ipairs(menu_items) do
+        if not item.parent then
+          table.insert(found, item.text)
+        end
+      end
+
+      table.sort(expected)
+      table.sort(found)
+      assert.same(expected, found)
+    end)
+
+    it("contains subcommands", function()
+      local found_sub = false
+      for _, item in ipairs(menu_items) do
+        if item.text == "add readonly" then
+          found_sub = true
+          break
+        end
+      end
+      assert.is_true(found_sub)
+    end)
+  end)
 end)

@@ -7,9 +7,7 @@ describe("API Methods", function()
   local picker_mock
   local utils_mock
   local input_stub
-  local original_health
   local nvim_aider
-  local config
 
   before_each(function()
     package.loaded["nvim_aider.health"] = {
@@ -20,7 +18,6 @@ describe("API Methods", function()
     package.loaded["nvim_aider"] = nil
     nvim_aider = require("nvim_aider")
     nvim_aider.setup()
-    config = nvim_aider.config
 
     -- Then mock other components
     terminal_mock = mock(require("nvim_aider.terminal"), true)
