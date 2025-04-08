@@ -1,7 +1,8 @@
 name: Stale Issues & PRs
 
 on:
-  workflow_call:
+  schedule:
+    - cron: "30 1 * * *"
 
 jobs:
   stale:
