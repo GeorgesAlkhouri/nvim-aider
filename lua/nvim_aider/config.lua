@@ -44,7 +44,7 @@ M.defaults = {
   win = {
     wo = { winbar = "Aider" },
     style = "nvim_aider",
-    position = "bottom",
+    position = "right",
   },
   picker_cfg = {
     preset = "vscode",

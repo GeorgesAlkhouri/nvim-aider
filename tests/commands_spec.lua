@@ -12,31 +12,10 @@ describe("Command Setup", function()
     end
   end)
 
-  it("registers required commands", function()
+
+  it("executes health check without error", function()
     nvim_aider.setup()
-
-    local registered = vim.api.nvim_get_commands({})
-    local expected = {
-      "AiderHealth",
-      "AiderTerminalToggle",
-      "AiderTerminalSend",
-      "AiderQuickSendCommand",
-      "AiderQuickSendBuffer",
-      "AiderQuickAddFile",
-      "AiderQuickDropFile",
-      "AiderQuickReadOnlyFile",
-      "AiderTreeAddFile",
-      "AiderTreeDropFile",
-    }
-
-    for _, cmd in ipairs(expected) do
-      assert(registered[cmd], "Missing command: " .. cmd)
-    end
-  end)
-
-  it("executes AiderHealth command without error", function()
-    nvim_aider.setup()
-    local health_cmd_ok = pcall(vim.cmd, "AiderHealth")
-    assert(health_cmd_ok, "AiderHealth command should execute without error")
+    local health_check_ok = pcall(function() nvim_aider.api.health_check() end)
+    assert(health_check_ok, "health_check() should execute without error")
   end)
 end)

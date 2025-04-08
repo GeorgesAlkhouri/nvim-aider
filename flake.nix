@@ -37,8 +37,10 @@
           ...
         }:
         let
-          python = inputs.noospherix.hub.python.packages."${system}"."3.12";
-          python' = python.withPackages (
+          unstable = import inputs.noospherix.hub.nixpkgs-unstable {
+            inherit system;
+          };
+          python' = unstable.python312Full.withPackages (
             ps: with ps; [
             ]
           );

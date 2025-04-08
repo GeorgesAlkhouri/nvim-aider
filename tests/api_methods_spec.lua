@@ -7,9 +7,7 @@ describe("API Methods", function()
   local picker_mock
   local utils_mock
   local input_stub
-  local original_health
   local nvim_aider
-  local config
 
   before_each(function()
     package.loaded["nvim_aider.health"] = {
@@ -20,7 +18,6 @@ describe("API Methods", function()
     package.loaded["nvim_aider"] = nil
     nvim_aider = require("nvim_aider")
     nvim_aider.setup()
-    config = nvim_aider.config
 
     -- Then mock other components
     terminal_mock = mock(require("nvim_aider.terminal"), true)
@@ -32,7 +29,6 @@ describe("API Methods", function()
   after_each(function()
     -- Clean up modules
     package.loaded["nvim_aider"] = nil
-    package.loaded["nvim_aider.commands"] = nil
     package.loaded["nvim_aider.health"] = nil
     package.loaded["nvim_aider.config"] = nil
 
@@ -95,6 +91,11 @@ describe("API Methods", function()
 
   describe("Buffer Operations", function()
     before_each(function()
+      -- Create a new modifiable buffer for each test
+      local buf = vim.api.nvim_create_buf(true, true)
+      vim.api.nvim_set_current_buf(buf)
+      vim.bo[buf].modifiable = true
+
       utils_mock.get_absolute_path.returns("/project/file.lua")
       vim.api.nvim_buf_set_lines(0, 0, -1, false, { "line1", "line2" })
     end)

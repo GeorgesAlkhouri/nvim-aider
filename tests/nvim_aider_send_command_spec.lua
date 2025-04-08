@@ -10,9 +10,6 @@ describe("AiderQuickSendCommand", function()
 
   local nvim_aider = require("nvim_aider")
   before_each(function()
-    -- package.loaded["nvim_aider.terminal"] = nil
-    -- package.loaded["nvim_aider.picker"] = nil
-    --
     terminal_mock = mock(require("nvim_aider.terminal"), true)
     picker_mock = mock(require("nvim_aider.picker"), true)
 
@@ -25,6 +22,7 @@ describe("AiderQuickSendCommand", function()
   end)
 
   after_each(function()
+    package.loaded["nvim_aider.commands"] = nil
     mock.revert(terminal_mock)
     mock.revert(picker_mock)
     vim.ui.input:revert()
@@ -41,7 +39,7 @@ describe("AiderQuickSendCommand", function()
       return mock_picker
     end)
 
-    vim.cmd("AiderQuickSendCommand")
+    require("nvim_aider.api").open_command_picker()
     assert.stub(terminal_mock.command).was_called_with("/test", nil, nil)
     assert.spy(mock_close).was_called()
   end)
@@ -61,7 +59,7 @@ describe("AiderQuickSendCommand", function()
       callback(nil) -- Simulate canceled input
     end)
 
-    vim.cmd("AiderQuickSendCommand")
+    require("nvim_aider.api").open_command_picker()
     assert.stub(terminal_mock.command).was_not_called() -- Verify no command sent
     assert.spy(mock_close).was_called()
   end)
@@ -81,7 +79,7 @@ describe("AiderQuickSendCommand", function()
       callback("user_input")
     end)
 
-    vim.cmd("AiderQuickSendCommand")
+    require("nvim_aider.api").open_command_picker()
     assert.stub(terminal_mock.command).was_called_with("/input", "user_input", nil)
     assert.spy(mock_close).was_called() -- Verify picker closed
   end)

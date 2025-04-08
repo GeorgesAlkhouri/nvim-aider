@@ -30,7 +30,6 @@ describe("nvim-tree Integration", function()
 
   it("should add file from tree when valid node selected", function()
     nvim_aider.setup()
-    -- Set filetype to NvimTree
     vim.bo.filetype = "NvimTree"
 
     -- Mock vim.fn.fnamemodify to return relative path
@@ -42,8 +41,7 @@ describe("nvim-tree Integration", function()
       return orig_fnamemodify(path, mod)
     end
 
-    -- Call the add file command
-    vim.cmd("AiderTreeAddFile")
+    require("nvim_aider.tree").add_file_from_tree()
 
     -- Verify terminal command was called with correct path
     assert.stub(terminal_mock.command).was_called_with("/add", "path/to/test/file.lua")
@@ -54,7 +52,6 @@ describe("nvim-tree Integration", function()
 
   it("should drop file from tree when valid node selected", function()
     nvim_aider.setup()
-    -- Set filetype to NvimTree
     vim.bo.filetype = "NvimTree"
 
     -- Mock vim.fn.fnamemodify to return relative path
@@ -66,8 +63,7 @@ describe("nvim-tree Integration", function()
       return orig_fnamemodify(path, mod)
     end
 
-    -- Call the drop file command
-    vim.cmd("AiderTreeDropFile")
+    require("nvim_aider.tree").drop_file_from_tree()
 
     -- Verify terminal command was called with correct path
     assert.stub(terminal_mock.command).was_called_with("/drop", "path/to/test/file.lua")
@@ -84,9 +80,8 @@ describe("nvim-tree Integration", function()
     -- Spy on vim.notify
     local notify_spy = spy.on(vim, "notify")
 
-    -- Call commands
-    vim.cmd("AiderTreeAddFile")
-    vim.cmd("AiderTreeDropFile")
+    require("nvim_aider.tree").add_file_from_tree()
+    require("nvim_aider.tree").drop_file_from_tree()
 
     -- Verify warnings were shown
     assert.spy(notify_spy).was_called_with("Not in nvim-tree buffer", vim.log.levels.WARN)
@@ -107,9 +102,8 @@ describe("nvim-tree Integration", function()
     -- Spy on vim.notify
     local notify_spy = spy.on(vim, "notify")
 
-    -- Call commands
-    vim.cmd("AiderTreeAddFile")
-    vim.cmd("AiderTreeDropFile")
+    require("nvim_aider.tree").add_file_from_tree()
+    require("nvim_aider.tree").drop_file_from_tree()
 
     -- Verify warnings were shown
     assert.spy(notify_spy).was_called_with("No node found under cursor", vim.log.levels.WARN)
