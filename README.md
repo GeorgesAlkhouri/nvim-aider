@@ -138,7 +138,7 @@ require("nvim_aider").setup({
   win = {
     wo = { winbar = "Aider" },
     style = "nvim_aider",
-    position = "bottom",
+    position = "right",
   },
 })
 ```
