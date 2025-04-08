@@ -1,5 +1,5 @@
 local M = {}
-local commands = require("nvim_aider.commands")
+local commands = require("nvim_aider.commands_slash")
 local config = require("nvim_aider.config")
 local picker = require("nvim_aider.picker")
 local terminal = require("nvim_aider.terminal")

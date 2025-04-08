@@ -1,6 +1,6 @@
 local M = {}
 
-local commands = require("nvim_aider.commands")
+local commands = require("nvim_aider.commands_slash")
 local terminal = require("nvim_aider.terminal")
 
 M.defaults = {

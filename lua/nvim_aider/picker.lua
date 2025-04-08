@@ -10,7 +10,7 @@ function M.create(opts, confirm)
   -- Build items from commands
   local items = {}
   local longest_cmd = 0
-  for cmd_name, cmd_data in pairs(require("nvim_aider.commands")) do
+  for cmd_name, cmd_data in pairs(require("nvim_aider.commands_slash")) do
     table.insert(items, {
       text = cmd_data.value,
       description = cmd_data.description,
