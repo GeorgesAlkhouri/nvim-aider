@@ -26,7 +26,6 @@ describe("nvim-tree Integration", function()
     mock.revert(terminal_mock)
     notify_spy:revert()
     package.loaded["nvim-tree.api"] = nil
-    -- package.loaded["nvim_aider.commands"] = nil
   end)
 
   it("should add file from tree when valid node selected", function()
