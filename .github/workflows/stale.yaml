@@ -1,0 +1,24 @@
+name: Stale Issues & PRs
+
+on:
+  workflow_call:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          operations-per-run: 300
+          # default stale time
+          days-before-stale: 30
+          days-before-close: 7
+          days-before-pr-stale: 30
+          days-before-pr-close: -1
+          # exclude issues with certain labels
+          exempt-issue-labels: pinned,wip,security,notice
+          # never stale issues attached to a milestone
+          # exempt-all-milestones: true
+          stale-issue-message: "This issue is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 7 days."
+          stale-pr-message: "This PR is stale because it has been open 30 days with no activity."
+          close-issue-message: "This issue was closed because it has been stalled for 7 days with no activity."
