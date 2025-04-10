@@ -102,6 +102,14 @@ vim.api.nvim_create_user_command(
   { desc = "Add current file to Aider session" }
 )
 
+vim.api.nvim_create_user_command(
+  "AiderQuickReadOnlyFile",
+  create_deprecated_handler("AiderQuickReadOnlyFile", "Aider add readonly", function()
+    require("nvim_aider.api").add_read_only_file()
+  end),
+  { desc = "Add current file as read-only to Aider session" }
+)
+
 -- Add nvim-tree integration commands if available
 local ok, _ = pcall(require, "nvim-tree")
 if ok then
