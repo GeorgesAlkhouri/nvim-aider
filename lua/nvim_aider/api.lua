@@ -1,6 +1,6 @@
 local M = {}
 local commands = require("nvim_aider.commands_slash")
-local config = require("nvim_aider.config")
+local diagnostics = require("nvim_aider.diagnostics")
 local picker = require("nvim_aider.picker")
 local terminal = require("nvim_aider.terminal")
 local utils = require("nvim_aider.utils")
@@ -70,6 +70,33 @@ function M.send_buffer_with_prompt(opts)
         selected_text = selected_text .. "\n> " .. input
       end
       terminal.send(selected_text, opts or {}, true)
+    end
+  end)
+end
+
+---Send diagnostics content with optional prompt
+---@param opts? table Optional configuration override
+function M.send_diagnostics_with_prompt(opts)
+  local current_diagnostics = vim.diagnostic.get(0) -- Get diagnostics for the current buffer (bufnr 0)
+
+  if not current_diagnostics or #current_diagnostics == 0 then
+    vim.notify("No diagnostics found in the current buffer.", vim.log.levels.INFO)
+    return
+  end
+
+  local formatted_diagnostics = diagnostics.format_diagnostics(current_diagnostics)
+  local buf_name = vim.fn.bufname("%")
+
+  vim.ui.input({
+    prompt = "Add a prompt for the diagnostics:",
+    default = "Here are the diagnostics for " .. buf_name .. ":",
+  }, function(input)
+    if input ~= nil then
+      local final_output = formatted_diagnostics
+      if input ~= "" then
+        final_output = input .. "\n" .. final_output
+      end
+      terminal.send(final_output, opts or {}, true)
     end
   end)
 end

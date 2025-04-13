@@ -16,6 +16,7 @@
 - [x] 📤 Quick commands to add/drop current buffer files
 - [x] 📤 Send buffers or selections to Aider
 - [x] 💬 Optional user prompt for buffer and selection sends
+- [x] 🩺 Send current buffer diagnostics to Aider
 - [x] 🔍 Aider command selection UI with fuzzy search and input prompt
 - [x] 🔌 Fully documented [Lua API](lua/nvim_aider/api.lua) for
       programmatic interaction and custom integrations
@@ -26,18 +27,19 @@
 
 ## 🎮 Commands
 
-- `Aider` - Open interactive command menu
+- `:Aider` - Open interactive command menu
 
   ```text
   Commands:
-  health      🩺 Check plugin health status
-  toggle      🎛️ Toggle Aider terminal window
-  send        📤 Send text to Aider (prompt if empty)
-  command     ⌨️ Show slash commands
-  buffer      📄 Send current buffer
-  add         ➕ Add file to session
-   > readonly 👀 Add as read-only reference
-  drop        🗑️ Remove file from session
+  health         🩺 Check plugin health status
+  toggle         🎛️ Toggle Aider terminal window
+  send           📤 Send text to Aider (prompt if empty)
+  command        ⌨️ Show slash commands
+  buffer         📄 Send current buffer
+   > diagnostics 🩺 Send current buffer diagnostics
+  add            ➕ Add file to session
+   > readonly    👀 Add as read-only reference
+  drop           🗑️ Remove file from session
   ```
 
 - ⚡ Direct command execution examples:
@@ -247,6 +249,14 @@ Send entire buffer content with optional prompt
 
 ```lua
 api.send_buffer_with_prompt()
+```
+
+#### `send_diagnostics_with_prompt(opts?)`
+
+Send current buffer's diagnostics with an optional prompt
+
+```lua
+api.send_diagnostics_with_prompt()
 ```
 
 ---

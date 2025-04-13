@@ -8,6 +8,7 @@ describe("API Methods", function()
   local utils_mock
   local input_stub
   local nvim_aider
+  local bufname_stub
 
   before_each(function()
     package.loaded["nvim_aider.health"] = {
@@ -24,6 +25,7 @@ describe("API Methods", function()
     picker_mock = mock(require("nvim_aider.picker"), true)
     utils_mock = mock(require("nvim_aider.utils"), true)
     input_stub = stub(vim.ui, "input")
+    bufname_stub = stub(vim.fn, "bufname")
   end)
 
   after_each(function()
@@ -37,6 +39,7 @@ describe("API Methods", function()
     mock.revert(picker_mock)
     mock.revert(utils_mock)
     input_stub:revert()
+    bufname_stub:revert()
   end)
   --
   describe("Core Functionality", function()
@@ -129,6 +132,86 @@ describe("API Methods", function()
     it("add_read_only_file with valid buffer", function()
       nvim_aider.api.add_read_only_file()
       assert.stub(terminal_mock.command).was_called_with("/read-only", "/project/file.lua", nil)
+    end)
+
+    it("send_diagnostics_with_prompt without input", function()
+      -- Mock diagnostics
+      local mock_diagnostics = {
+        {
+          bufnr = 0,
+          lnum = 0,
+          col = 0,
+          severity = vim.diagnostic.severity.ERROR,
+          message = "Error message 1",
+          source = "linter1",
+        },
+        {
+          bufnr = 0,
+          lnum = 1,
+          col = 5,
+          severity = vim.diagnostic.severity.WARN,
+          message = "Warning message 2",
+          source = "linter2",
+        },
+      }
+      local get_diagnostic_stub = stub(vim.diagnostic, "get")
+      get_diagnostic_stub.returns(mock_diagnostics)
+      bufname_stub.returns("test_buffer.lua") -- Mock buffer name
+
+      -- Calculate the expected output from the actual formatter
+      local expected_formatted_output = "ERROR|L1:C1|linter1||Error message 1\n"
+        .. "WARN|L2:C6|linter2||Warning message 2"
+
+      input_stub.invokes(function(opts, cb)
+        -- Assert the prompt and default values passed to vim.ui.input
+        assert.are.equal("Add a prompt for the diagnostics:", opts.prompt)
+        assert.are.equal("Here are the diagnostics for test_buffer.lua:", opts.default)
+        cb("") -- Simulate user pressing enter without input
+      end)
+      nvim_aider.api.send_diagnostics_with_prompt()
+
+      -- Expected output should be just the formatted diagnostics when input is empty
+      assert.stub(terminal_mock.send).was_called_with(expected_formatted_output, {}, true)
+
+      -- Clean up stub
+      get_diagnostic_stub:revert()
+    end)
+
+    it("send_diagnostics_with_prompt with input", function()
+      -- Mock diagnostics
+      local mock_diagnostics = {
+        {
+          bufnr = 0,
+          lnum = 0,
+          col = 0,
+          severity = vim.diagnostic.severity.ERROR,
+          message = "Error message 1",
+          source = "linter1",
+        },
+      }
+      local get_diagnostic_stub = stub(vim.diagnostic, "get")
+      get_diagnostic_stub.returns(mock_diagnostics)
+      bufname_stub.returns("test_buffer.lua") -- Mock buffer name
+
+      -- Calculate the expected output from the actual formatter
+      local expected_formatted_output = "ERROR|L1:C1|linter1||Error message 1"
+
+      local user_input = "user prompt"
+      input_stub.invokes(function(opts, cb)
+        -- Assert the prompt and default values passed to vim.ui.input
+        assert.are.equal("Add a prompt for the diagnostics:", opts.prompt)
+        assert.are.equal("Here are the diagnostics for test_buffer.lua:", opts.default)
+        cb(user_input) -- Simulate user providing input
+      end)
+      nvim_aider.api.send_diagnostics_with_prompt()
+
+      -- Expected output should be user input + newline + formatted diagnostics
+      local expected_output = user_input .. "\n" .. expected_formatted_output
+
+      assert.stub(terminal_mock.send).was_called_with(expected_output, {}, true)
+
+      -- Clean up stub
+      get_diagnostic_stub:revert()
     end)
   end)
 

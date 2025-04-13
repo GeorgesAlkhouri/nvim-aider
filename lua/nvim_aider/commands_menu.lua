@@ -30,6 +30,14 @@ local commands = {
     impl = function()
       require("nvim_aider.api").send_buffer_with_prompt()
     end,
+    subcommands = {
+      diagnostics = {
+        doc = "Send current buffer diagnostics to Aider terminal",
+        impl = function()
+          require("nvim_aider.api").send_diagnostics_with_prompt()
+        end,
+      },
+    },
   },
   add = {
     doc = "Add current file to Aider session",
