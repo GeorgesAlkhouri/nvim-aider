@@ -14,12 +14,16 @@ M.defaults = {
         "nvim_aider_drop",
         desc = "drop from aider",
       },
+      ["="] = {
+        "nvim_aider_add_read_only",
+        desc = "add as read-only to aider",
+      },
     },
   },
 }
 
 local function check_existing_mappings(mappings)
-  local has_add, has_drop = false, false
+  local has_add, has_drop, has_read_only = false, false, false
   for _, mapping in pairs(mappings) do
     if type(mapping) == "table" then
       if mapping[1] == "nvim_aider_add" then
@@ -28,9 +32,12 @@ local function check_existing_mappings(mappings)
       if mapping[1] == "nvim_aider_drop" then
         has_drop = true
       end
+      if mapping[1] == "nvim_aider_add_read_only" then
+        has_read_only = true
+      end
     end
   end
-  return has_add, has_drop
+  return has_add, has_drop, has_read_only
 end
 
 function M.setup(opts)
@@ -46,7 +53,7 @@ function M.setup(opts)
   end
 
   -- Check for existing command mappings
-  local has_add, has_drop = check_existing_mappings(opts.window and opts.window.mappings or {})
+  local has_add, has_drop, has_read_only = check_existing_mappings(opts.window and opts.window.mappings or {})
 
   -- Conditional merging
   local merged = vim.tbl_deep_extend("keep", (opts.window and opts.window.mappings) or {}, {})
@@ -55,6 +62,9 @@ function M.setup(opts)
   end
   if not has_drop then
     merged["-"] = M.defaults.window.mappings["-"]
+  end
+  if not has_read_only then
+    merged["="] = M.defaults.window.mappings["="]
   end
 
   opts.window = opts.window or {}
@@ -92,10 +102,27 @@ function M.setup(opts)
       end
     end
 
+    local nvim_aider_add_read_only = function(state)
+      local node = state.tree:get_node()
+      terminal.command(commands["read-only"].value, node.path)
+    end
+
+    local nvim_aider_add_read_only_visual = function(_, selected_nodes)
+      local nodeNames = {}
+      for _, node in pairs(selected_nodes) do
+        table.insert(nodeNames, node.path)
+      end
+      if #nodeNames > 0 then
+        terminal.command(commands["read-only"].value, table.concat(nodeNames, " "))
+      end
+    end
+
     neo_tree_commands.nvim_aider_add = nvim_aider_add
     neo_tree_commands.nvim_aider_add_visual = nvim_aider_add_visual
     neo_tree_commands.nvim_aider_drop = nvim_aider_drop
     neo_tree_commands.nvim_aider_drop_visual = nvim_aider_drop_visual
+    neo_tree_commands.nvim_aider_add_read_only = nvim_aider_add_read_only
+    neo_tree_commands.nvim_aider_add_read_only_visual = nvim_aider_add_read_only_visual
   else
     vim.notify(
       "[nvim-aider] Neo-tree integration requires neo-tree.nvim version 3.30+.\n"
