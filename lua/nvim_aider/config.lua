@@ -25,6 +25,7 @@ M.defaults = {
     "--no-auto-commits",
     "--pretty",
     "--stream",
+    "--watch-files",
   },
   config = {
     os = { editPreset = "nvim-remote" },
