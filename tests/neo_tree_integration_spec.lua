@@ -7,6 +7,8 @@ describe("neo-tree Integration", function()
     nvim_aider_add_visual = function(_) end,
     nvim_aider_drop = function(_) end,
     nvim_aider_drop_visual = function(_) end,
+    nvim_aider_add_read_only = function(_) end,
+    nvim_aider_add_read_only_visual = function(_) end,
   }
 
   local mock_state = {
@@ -59,6 +61,15 @@ describe("neo-tree Integration", function()
       neo_tree_commands.nvim_aider_drop(mock_state)
       assert.stub(terminal_mock.command).was_called_with("/drop", "/path/to/test/file.lua")
     end)
+
+    it("should add read-only file from neo-tree when valid node selected", function()
+      mock_state.tree.get_node = function()
+        return { path = "/path/to/readonly/file.lua" }
+      end
+
+      neo_tree_commands.nvim_aider_add_read_only(mock_state)
+      assert.stub(terminal_mock.command).was_called_with("/read-only", "/path/to/readonly/file.lua")
+    end)
   end)
 
   describe("multi-file operations (visual mode)", function()
@@ -80,6 +91,18 @@ describe("neo-tree Integration", function()
 
       neo_tree_commands.nvim_aider_drop_visual(nil, mock_nodes)
       assert.stub(terminal_mock.command).was_called_with("/drop", "/path/to/file1.lua /path/to/file2.lua")
+    end)
+
+    it("should add multiple read-only files from neo-tree selection", function()
+      local mock_nodes = {
+        { name = "readonly1.lua", path = "/path/to/readonly1.lua" },
+        { name = "readonly2.lua", path = "/path/to/readonly2.lua" },
+      }
+
+      neo_tree_commands.nvim_aider_add_read_only_visual(nil, mock_nodes)
+      assert
+        .stub(terminal_mock.command)
+        .was_called_with("/read-only", "/path/to/readonly1.lua /path/to/readonly2.lua")
     end)
   end)
 

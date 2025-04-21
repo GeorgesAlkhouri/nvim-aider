@@ -16,7 +16,7 @@ M.defaults = {
       },
       ["="] = {
         "nvim_aider_add_read_only",
-        desc = "add as read-only to aider",
+        desc = "add read-only to aider",
       },
     },
   },
