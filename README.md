@@ -104,6 +104,8 @@ Using lazy.nvim:
   }
 ```
 
+After installing, run `:Aider health` to check if everything is set up correctly.
+
 ## ⚙️ Configuration
 
 There is no need to call setup if you don't want to change the default options.

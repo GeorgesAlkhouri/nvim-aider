@@ -18,7 +18,7 @@ function M.check()
       health.warn("Could not parse aider version from output: " .. version_str)
     end
   else
-    health.error("Could not determine aider version. Is '" .. options.aider_cmd .. "' in your PATH?")
+    health.error("Could not determine aider version for '" .. options.aider_cmd .. "'.")
   end
 
   -- Snacks plugin check
