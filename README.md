@@ -24,6 +24,7 @@
       integration also with multi-file/directory selection with visual mode support
 - [x] 🌳 Integration with [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)
       for adding or dropping files directly from the tree interface
+- [x] 🔄 Auto-reload buffers on external changes (requires 'autoread')
 
 ## 🎮 Commands
 
@@ -117,6 +118,8 @@ require("nvim_aider").setup({
     "--pretty",
     "--stream",
   },
+  -- Automatically reload buffers changed by Aider (requires vim.o.autoread = true)
+  auto_reload = true,
   -- Theme colors (automatically uses Catppuccin flavor if available)
   theme = {
     user_input_color = "#a6da95",

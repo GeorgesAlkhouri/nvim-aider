@@ -12,6 +12,7 @@
 ---@field completion_menu_current_bg_color nvim_aider.Color
 
 ---@class nvim_aider.Config: snacks.terminal.Opts
+---@field auto_reload? boolean Automatically reload buffers changed by Aider (requires vim.o.autoread = true)
 ---@field aider_cmd? string
 ---@field args? string[]
 ---@field theme? nvim_aider.Theme
@@ -20,6 +21,7 @@
 local M = {}
 
 M.defaults = {
+  auto_reload = false,
   aider_cmd = "aider",
   args = {
     "--no-auto-commits",
