@@ -72,7 +72,6 @@ end
 function M.command(command, text, opts)
   text = text or ""
 
-  opts = vim.tbl_deep_extend("force", config.options, opts or {})
   -- NOTE: For Aider commands that shouldn't get a newline (e.g. `/add file`)
   M.send(command .. " " .. text, opts, false)
 end
