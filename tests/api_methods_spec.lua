@@ -64,6 +64,11 @@ describe("API Methods", function()
       nvim_aider.api.send_command("/test", "input", { silent = true })
       assert.stub(terminal_mock.command).was_called_with("/test", "input", { silent = true })
     end)
+
+    it("reset_session executes terminal command", function()
+      nvim_aider.api.reset_session({ force = true })
+      assert.stub(terminal_mock.command).was_called_with("/reset", nil, { force = true })
+    end)
   end)
 
   describe("File Operations", function()
