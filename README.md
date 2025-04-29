@@ -121,7 +121,7 @@ require("nvim_aider").setup({
     "--stream",
   },
   -- Automatically reload buffers changed by Aider (requires vim.o.autoread = true)
-  auto_reload = true,
+  auto_reload = false,
   -- Theme colors (automatically uses Catppuccin flavor if available)
   theme = {
     user_input_color = "#a6da95",
