@@ -15,6 +15,7 @@
       if available
 - [x] 📤 Quick commands to add/drop current buffer files
 - [x] 📤 Send buffers or selections to Aider
+- [x] ♻️ Reset command to clear session
 - [x] 💬 Optional user prompt for buffer and selection sends
 - [x] 🩺 Send current buffer diagnostics to Aider
 - [x] 🔍 Aider command selection UI with fuzzy search and input prompt
@@ -41,6 +42,7 @@
   add            ➕ Add file to session
    > readonly    👀 Add as read-only reference
   drop           🗑️ Remove file from session
+  reset          ♻️ Drop all files and clear chat history
   ```
 
 - ⚡ Direct command execution examples:
@@ -49,6 +51,7 @@
   :Aider health
   :Aider add readonly
   :Aider send "Fix login validation"
+  :Aider reset
   ```
 
 ## 🔗 Requirements
@@ -75,6 +78,7 @@ Using lazy.nvim:
       { "<leader>a+", "<cmd>Aider add<cr>", desc = "Add File" },
       { "<leader>a-", "<cmd>Aider drop<cr>", desc = "Drop File" },
       { "<leader>ar", "<cmd>Aider add readonly<cr>", desc = "Add Read-Only" },
+      { "<leader>aR", "<cmd>Aider reset<cr>", desc = "Reset Session" },
       -- Example nvim-tree.lua integration if needed
       { "<leader>a+", "<cmd>AiderTreeAddFile<cr>", desc = "Add File from Tree to Aider", ft = "NvimTree" },
       { "<leader>a-", "<cmd>AiderTreeDropFile<cr>", desc = "Drop File from Tree from Aider", ft = "NvimTree" },
@@ -195,6 +199,14 @@ Execute specific Aider command
 
 ```lua
 api.send_command("/commit", "Add error handling")
+```
+
+#### `reset_session(opts?)`
+
+Drop all files and clear chat history
+
+```lua
+api.reset_session()
 ```
 
 ---

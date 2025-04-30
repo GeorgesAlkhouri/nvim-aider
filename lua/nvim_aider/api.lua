@@ -156,6 +156,12 @@ function M.add_read_only_file(opts)
   end
 end
 
+---Reset the Aider session (drop all files and clear history)
+---@param opts? table Optional configuration override
+function M.reset_session(opts)
+  terminal.command(commands.reset.value, nil, opts or {})
+end
+
 ---Open command picker
 ---@param opts? table Optional configuration override
 ---@param callback? function Custom callback handler

@@ -59,6 +59,12 @@ local commands = {
       require("nvim_aider.api").drop_current_file()
     end,
   },
+  reset = {
+    doc = "Drop all files and clear chat history",
+    impl = function()
+      require("nvim_aider.api").reset_session()
+    end,
+  },
 }
 
 function M._load_command(args)

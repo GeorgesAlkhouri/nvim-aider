@@ -23,6 +23,7 @@ describe("Commands Menu", function()
       add_current_file = stub.new(),
       add_read_only_file = stub.new(),
       drop_current_file = stub.new(),
+      reset_session = stub.new(), -- Add mock for reset
     }
 
     package.loaded["nvim_aider.api"] = api_mock
@@ -51,6 +52,7 @@ describe("Commands Menu", function()
         "buffer",
         "add",
         "drop",
+        "reset", -- Check for reset
       }
       -- Check that the keys match regardless of order
       local expected_set = {}
@@ -78,6 +80,9 @@ describe("Commands Menu", function()
 
       commands_menu._load_command({ "toggle" })
       assert.stub(api_mock.toggle_terminal).was_called()
+
+      commands_menu._load_command({ "reset" }) -- Test reset execution
+      assert.stub(api_mock.reset_session).was_called()
     end)
 
     it("should execute subcommands", function()
@@ -139,7 +144,7 @@ describe("Commands Menu", function()
     end)
 
     it("contains all top-level commands", function()
-      local expected = { "health", "toggle", "send", "command", "buffer", "add", "drop" }
+      local expected = { "health", "toggle", "send", "command", "buffer", "add", "drop", "reset" } -- Add reset
       local found = {}
       for _, item in ipairs(menu_items) do
         if not item.parent then
