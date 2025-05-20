@@ -18,14 +18,14 @@
 ---@field theme? nvim_aider.Theme
 ---@field win? snacks.win.Config
 ---@field picker_cfg? snacks.picker.layout.Config
----@field picker? 'snacks' | 'telescope'
----@field terminal_emulator? 'snacks' | 'nvim' Choose between snacks.nvim or Neovim's built-in terminal
+---@field picker? 'snacks' | 'telescope' Picker implementation to use ('snacks' or 'telescope')
+---@field terminal_emulator? 'snacks' | 'nvim' Terminal emulator to use ('snacks' or 'nvim')
 local M = {}
 
 M.defaults = {
   auto_reload = false,
   aider_cmd = "aider",
-  terminal_emulator = "snacks", -- Default to snacks for backward compatibility
+  terminal_emulator = "snacks",
   args = {
     "--no-auto-commits",
     "--pretty",

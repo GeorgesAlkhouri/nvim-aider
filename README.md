@@ -18,7 +18,7 @@
 - [x] ♻️ Reset command to clear session
 - [x] 💬 Optional user prompt for buffer and selection sends
 - [x] 🩺 Send current buffer diagnostics to Aider
-- [x] 🔍 Aider command selection UI with fuzzy search and input prompt
+- [x] 🔍 Aider command selection UI with fuzzy search and input prompt (supports [Telescope](https://github.com/nvim-telescope/telescope.nvim))
 - [x] 🔌 Fully documented [Lua API](lua/nvim_aider/api.lua) for
       programmatic interaction and custom integrations
 - [x] 🌲➕ [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim)
@@ -26,6 +26,7 @@
 - [x] 🌳 Integration with [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)
       for adding or dropping files directly from the tree interface
 - [x] 🔄 Auto-reload buffers on external changes (requires 'autoread')
+- [x] 🖥️ Support for Neovim's built-in terminal or Snacks terminal
 
 ## 🎮 Commands
 
@@ -58,8 +59,8 @@
 
 🐍 Python: Install `aider-chat`
 📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier
-🌙 Lua: `folke/snacks.nvim`,
-_optionals_ `catppuccin/nvim`, `nvim-neo-tree/neo-tree.nvim`, `nvim-tree.lua`
+🌙 Lua:
+_optionals_ `folke/snacks.nvim`, `catppuccin/nvim`, `nvim-neo-tree/neo-tree.nvim`, `nvim-tree.lua`, `nvim-telescope/telescope.nvim` (if using telescope picker)
 
 ## 📦 Installation
 
@@ -84,8 +85,8 @@ Using lazy.nvim:
       { "<leader>a-", "<cmd>AiderTreeDropFile<cr>", desc = "Drop File from Tree from Aider", ft = "NvimTree" },
     },
     dependencies = {
-      "folke/snacks.nvim",
       --- The below dependencies are optional
+      "folke/snacks.nvim", -- must set picker and terminal_emulator if not using snacks
       "catppuccin/nvim",
       "nvim-tree/nvim-tree.lua",
       --- Neo-tree integration
@@ -152,6 +153,10 @@ require("nvim_aider").setup({
     style = "nvim_aider",
     position = "right",
   },
+  -- Choose between 'snacks' (default) or 'telescope' for the picker UI
+  picker = "snacks",
+  -- Choose between 'snacks' (default) or 'nvim' for the Aider terminal window
+  terminal_emulator = "snacks",
 })
 ```
 
