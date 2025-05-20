@@ -18,6 +18,7 @@
 ---@field theme? nvim_aider.Theme
 ---@field win? snacks.win.Config
 ---@field picker_cfg? snacks.picker.layout.Config
+---@field picker? 'snacks' | 'telescope'
 local M = {}
 
 M.defaults = {
@@ -52,6 +53,7 @@ M.defaults = {
   picker_cfg = {
     preset = "vscode",
   },
+  picker = "snacks",
 }
 
 ---@type nvim_aider.Config

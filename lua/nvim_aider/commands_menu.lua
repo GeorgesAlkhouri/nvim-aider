@@ -134,6 +134,8 @@ function M._menu()
       category = "command",
       name = name,
       subcommands = cmd.subcommands,
+      -- Store the wrapped command data for execution
+      wrapped_cmd = cmd,
     })
     longest_cmd = math.max(longest_cmd, #name)
 
@@ -148,6 +150,8 @@ function M._menu()
           name = name,
           subname = subname,
           parent = name,
+          -- Store the wrapped subcommand data for execution
+          wrapped_cmd = subcmd,
         })
         longest_cmd = math.max(longest_cmd, #full_name)
       end
@@ -156,34 +160,24 @@ function M._menu()
 
   longest_cmd = longest_cmd + 2 -- Add padding
 
-  -- Create and show the snacks picker
-  require("snacks.picker")({
-    items = items,
-    layout = require("nvim_aider.config").options.picker_cfg,
-    format = function(item)
-      local display_text = item.text
-      if item.parent then
-        display_text = " > " .. display_text:sub(#item.parent + 2)
-      end
-      return {
-        { ("%-" .. longest_cmd .. "s"):format(display_text), "Function" },
-        { " " .. item.description, "Comment" },
-      }
-    end,
-    prompt = "Aider Commands > ",
-    confirm = function(picker_instance, item)
-      if item then
-        if item.subname then
-          -- Execute subcommand
-          wrapped_commands[item.name].subcommands[item.subname].impl()
-        elseif wrapped_commands[item.name] then
-          -- Execute main command
-          wrapped_commands[item.name].impl()
-        end
-      end
-      picker_instance:close()
-    end,
-  })
+  local config = require("nvim_aider.config").options
+  local picker_module = require("nvim_aider.picker") -- Use the refactored picker module
+
+  local confirm_callback = function(picker_instance, item)
+    if item and item.wrapped_cmd then
+      -- Execute the wrapped command/subcommand implementation
+      item.wrapped_cmd.impl()
+    end
+    -- The generic picker creation function handles closing based on picker type
+    -- No need to explicitly close here for Telescope, it's done in create_generic's attach_mappings
+    -- For snacks, create_generic passes the picker_instance to this callback, so we close it here.
+    if config.picker == "snacks" and picker_instance and picker_instance.close then
+        picker_instance:close()
+    end
+  end
+
+  -- Use the generic picker creation function
+  picker_module.create_generic(items, longest_cmd, config, confirm_callback)
 end
 
 M.commands = commands

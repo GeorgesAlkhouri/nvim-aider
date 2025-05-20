@@ -53,3 +53,4 @@ luac.out
 *.hex
 .aider*
 .env
+memory-bank/
