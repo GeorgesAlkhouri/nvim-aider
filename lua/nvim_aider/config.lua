@@ -19,11 +19,13 @@
 ---@field win? snacks.win.Config
 ---@field picker_cfg? snacks.picker.layout.Config
 ---@field picker? 'snacks' | 'telescope'
+---@field terminal_emulator? 'snacks' | 'nvim' Choose between snacks.nvim or Neovim's built-in terminal
 local M = {}
 
 M.defaults = {
   auto_reload = false,
   aider_cmd = "aider",
+  terminal_emulator = "snacks", -- Default to snacks for backward compatibility
   args = {
     "--no-auto-commits",
     "--pretty",
@@ -101,7 +103,9 @@ function M.setup(opts)
   end
 
   M.options = vim.tbl_deep_extend("force", M.options, opts or {})
-  Snacks.config.style("nvim_aider", {})
+  if M.options.terminal_emulator == "snacks" then
+    Snacks.config.style("nvim_aider", {})
+  end
   return M.options
 end
 
