@@ -172,7 +172,7 @@ function M._menu()
     -- No need to explicitly close here for Telescope, it's done in create_generic's attach_mappings
     -- For snacks, create_generic passes the picker_instance to this callback, so we close it here.
     if config.picker == "snacks" and picker_instance and picker_instance.close then
-        picker_instance:close()
+      picker_instance:close()
     end
   end
 

@@ -4,8 +4,8 @@ local config = require("nvim_aider.config")
 
 -- Terminal state (for nvim term)
 local state = {
-  buf = nil,  -- Terminal buffer
-  win = nil,  -- Terminal window
+  buf = nil, -- Terminal buffer
+  win = nil, -- Terminal window
   chan = nil, -- Terminal channel ID
 }
 
@@ -27,13 +27,13 @@ end
 -- Create a new Neovim terminal
 local function create_nvim_terminal(cmd, opts)
   -- Create a vertical split
-  vim.cmd('vsplit')
+  vim.cmd("vsplit")
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_create_buf(false, true)
-  
+
   -- Set buffer options for persistence
-  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
-  
+  vim.api.nvim_buf_set_option(buf, "bufhidden", "hide")
+
   -- Set the buffer in the window
   vim.api.nvim_win_set_buf(win, buf)
 
@@ -46,17 +46,17 @@ local function create_nvim_terminal(cmd, opts)
       state.buf = nil
       state.win = nil
       state.chan = nil
-    end
+    end,
   })
-  
+
   -- Store state
   state.buf = buf
   state.win = win
   state.chan = vim.api.nvim_buf_get_var(buf, "terminal_job_id")
 
   -- Enter insert mode
-  vim.cmd('startinsert')
-  
+  vim.cmd("startinsert")
+
   return { buf = buf, win = win }
 end
 
@@ -77,11 +77,11 @@ function M.toggle(opts)
       vim.api.nvim_win_hide(state.win)
     elseif state.buf and vim.api.nvim_buf_is_valid(state.buf) then
       -- Buffer exists but not shown, show it in a new window
-      vim.cmd('vsplit')
+      vim.cmd("vsplit")
       local win = vim.api.nvim_get_current_win()
       vim.api.nvim_win_set_buf(win, state.buf)
       state.win = win
-      vim.cmd('startinsert')
+      vim.cmd("startinsert")
     else
       -- Create new terminal
       return create_nvim_terminal(cmd, opts)
