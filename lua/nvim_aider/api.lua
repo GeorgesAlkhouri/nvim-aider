@@ -162,22 +162,12 @@ function M.reset_session(opts)
   terminal.command(commands.reset.value, nil, opts or {})
 end
 
----Open command picker
+---Open slash command picker
 ---@param opts? table Optional configuration override
 ---@param callback? function Custom callback handler
 function M.open_command_picker(opts, callback)
-  picker.create(opts, callback or function(picker_instance, item)
-    if item.category == "input" then
-      vim.ui.input({ prompt = "Enter input for `" .. item.text .. "` (empty to skip):" }, function(input)
-        if input then
-          terminal.command(item.text, input, opts)
-        end
-      end)
-    else
-      terminal.command(item.text, nil, opts)
-    end
-    picker_instance:close()
-  end)
+  -- Delegate to the dedicated slash command picker function in picker.lua
+  require("nvim_aider.picker").open_slash_command_picker(opts, callback)
 end
 
 return M
