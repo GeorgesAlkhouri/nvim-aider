@@ -21,11 +21,13 @@
 - [x] 🔍 Aider command selection UI with fuzzy search and input prompt
 - [x] 🔌 Fully documented [Lua API](lua/nvim_aider/api.lua) for
       programmatic interaction and custom integrations
-- [x] 🌲➕ [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim)
-      integration also with multi-file/directory selection with visual mode support
-- [x] 🌳 Integration with [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)
-      for adding or dropping files directly from the tree interface
 - [x] 🔄 Auto-reload buffers on external changes (requires 'autoread')
+
+## 🧩 Integrations
+
+- [x] 🌲➕ [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim) offers rich context management for Aider, including files, directories, and multi-selection
+- [x] 🔖 [bookmarks.nvim](https://github.com/LintaoAmons/bookmarks.nvim) enables adding (optionally as read-only) or dropping files from Aider using saved bookmarks
+- [x] 🌳 [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua) enables adding or dropping individual files to Aider directly from its tree interface
 
 ## 🎮 Commands
 
