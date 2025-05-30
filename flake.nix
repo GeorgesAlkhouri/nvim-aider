@@ -69,7 +69,7 @@
             # '';
             enterShell = ''
               echo "✨ Updating flake.lock"
-              nix flake update --quiet --option warn-dirty false
+              # nix flake update --quiet --option warn-dirty false
 
               if [ -f .env ]; then
                     export $(grep -v '^#' .env | xargs)
