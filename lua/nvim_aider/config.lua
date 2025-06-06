@@ -18,10 +18,16 @@
 ---@field theme? nvim_aider.Theme
 ---@field win? snacks.win.Config
 ---@field picker_cfg? snacks.picker.layout.Config
+---@field idle_timeout? integer Timeout in milliseconds for waiting for the next chunk of output from Aider. (default: 5000)
+---@field response_timeout? integer Timeout in milliseconds for waiting for the first chunk of output from Aider. (default: 30000)
+---@field notifications? boolean Show notifications like 'Processing...', 'Done'. Warnings for busy process are still shown. (default: true)
 local M = {}
 
 M.defaults = {
   auto_reload = false,
+  idle_timeout = 5000,
+  response_timeout = 30000,
+  notifications = true,
   aider_cmd = "aider",
   args = {
     "--no-auto-commits",
