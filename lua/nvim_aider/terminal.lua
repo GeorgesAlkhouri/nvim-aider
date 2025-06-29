@@ -2,6 +2,9 @@ local M = {}
 
 local config = require("nvim_aider.config")
 
+-- Track whether we've already done the initial auto-add for this session
+local initial_auto_add_done = false
+
 ---@param opts nvim_aider.Config
 ---@return string
 local function create_cmd(opts)
@@ -26,10 +29,30 @@ end
 ---Check if aider terminal is currently running
 ---@return boolean
 function M.is_running()
-  local snacks = require("snacks.terminal")
+  -- Instead of using snacks.get which might create a terminal,
+  -- let's check for existing terminal buffers manually
   local cmd = M.get_current_cmd()
-  local term = snacks.get(cmd, config.options)
-  return term and term:buf_valid()
+
+  -- Look through all buffers to find an existing aider terminal
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(bufnr) then
+      local buf_name = vim.api.nvim_buf_get_name(bufnr)
+      -- Check if this is a terminal buffer with our aider command
+      if vim.bo[bufnr].buftype == "terminal" and buf_name:find("aider", 1, true) then
+        -- Check if the terminal job is still running
+        local ok, chan = pcall(vim.api.nvim_buf_get_var, bufnr, "terminal_job_id")
+        if ok and chan and chan > 0 then
+          -- Verify the job is actually running
+          local job_info = vim.fn.jobwait({chan}, 0)
+          if job_info[1] == -1 then -- -1 means job is still running
+            return true
+          end
+        end
+      end
+    end
+  end
+
+  return false
 end
 
 ---Toggle terminal visibility
@@ -41,10 +64,16 @@ function M.toggle(opts)
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
 
   local cmd = create_cmd(opts)
+
+  -- Check if terminal was already running before toggle
+  local was_running = M.is_running()
+
   local term = snacks.toggle(cmd, opts)
 
-  -- Auto-add all buffers if auto_manage_context is enabled and terminal was just created
-  if opts.auto_manage_context and term and term.buf then
+  -- Auto-add all buffers only if auto_manage_context is enabled,
+  -- terminal is now running, and this is the first time we're opening it
+  if opts.auto_manage_context and term and term.buf and not was_running and not initial_auto_add_done then
+    initial_auto_add_done = true
     -- Use a timer to ensure aider is ready to receive commands
     vim.defer_fn(function()
       local api = require("nvim_aider.api")
@@ -53,6 +82,11 @@ function M.toggle(opts)
   end
 
   return term
+end
+
+---Reset the initial auto-add state (useful when session is reset)
+function M.reset_auto_add_state()
+  initial_auto_add_done = false
 end
 
 ---Send text to terminal

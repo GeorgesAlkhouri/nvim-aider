@@ -29,6 +29,9 @@ end
 ---Clear all tracked files (useful when resetting session)
 function M.clear_session()
   session_files = {}
+  -- Reset the auto-add state so that next time aider is opened, it will auto-add all buffers again
+  local terminal = require("nvim_aider.terminal")
+  terminal.reset_auto_add_state()
 end
 
 ---Get all files currently tracked in the session
