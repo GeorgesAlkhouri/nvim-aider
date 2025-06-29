@@ -17,6 +17,21 @@ local function create_cmd(opts)
   return table.concat(cmd, " ")
 end
 
+---Get the current aider command string using default config
+---@return string
+function M.get_current_cmd()
+  return create_cmd(config.options)
+end
+
+---Check if aider terminal is currently running
+---@return boolean
+function M.is_running()
+  local snacks = require("snacks.terminal")
+  local cmd = M.get_current_cmd()
+  local term = snacks.get(cmd, config.options)
+  return term and term:buf_valid()
+end
+
 ---Toggle terminal visibility
 ---@param opts? nvim_aider.Config Optional config that will override the base config for this call only
 ---@return snacks.win?
@@ -26,7 +41,18 @@ function M.toggle(opts)
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
 
   local cmd = create_cmd(opts)
-  return snacks.toggle(cmd, opts)
+  local term = snacks.toggle(cmd, opts)
+
+  -- Auto-add all buffers if auto_manage_context is enabled and terminal was just created
+  if opts.auto_manage_context and term and term.buf then
+    -- Use a timer to ensure aider is ready to receive commands
+    vim.defer_fn(function()
+      local api = require("nvim_aider.api")
+      api.add_all_buffers(opts)
+    end, 1000)
+  end
+
+  return term
 end
 
 ---Send text to terminal
@@ -37,8 +63,9 @@ function M.send(text, opts, multi_line)
   multi_line = multi_line == nil and true or multi_line
   opts = vim.tbl_deep_extend("force", config.options, opts or {})
 
-  local cmd = create_cmd(opts)
-  local term = require("snacks.terminal").get(cmd, opts)
+  -- Always use the default command to ensure we connect to the same terminal instance
+  local cmd = M.get_current_cmd()
+  local term = require("snacks.terminal").get(cmd, config.options)
   if not term then
     vim.notify("Please open an Aider terminal first.", vim.log.levels.INFO)
     return

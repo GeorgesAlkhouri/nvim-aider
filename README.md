@@ -22,6 +22,7 @@
 - [x] 🔌 Fully documented [Lua API](lua/nvim_aider/api.lua) for
       programmatic interaction and custom integrations
 - [x] 🔄 Auto-reload buffers on external changes (requires 'autoread')
+- [x] 🤖 Auto context management: automatically add/remove buffers to/from Aider session (optional, disabled by default, inspired by [joshuavial/aider.nvim](https://github.com/joshuavial/aider.nvim))
 
 ## 🧩 Integrations
 
@@ -128,6 +129,18 @@ require("nvim_aider").setup({
   },
   -- Automatically reload buffers changed by Aider (requires vim.o.autoread = true)
   auto_reload = false,
+  -- Automatically add/remove buffers to/from aider session (default: false)
+  -- Set to true to enable automatic context management
+  auto_manage_context = false,
+  -- List of buffer name patterns to ignore when auto-managing context
+  ignore_buffers = {
+    "^term://",           -- Terminal buffers
+    "NeogitConsole",      -- Neogit console
+    "NvimTree_",          -- NvimTree buffers
+    "neo-tree filesystem", -- Neo-tree buffers
+    "^fugitive://",       -- Fugitive buffers
+    "^oil://",            -- Oil.nvim buffers
+  },
   -- Theme colors (automatically uses Catppuccin flavor if available)
   theme = {
     user_input_color = "#a6da95",

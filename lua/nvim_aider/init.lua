@@ -3,6 +3,9 @@ local M = {}
 M.config = require("nvim_aider.config")
 M.api = require("nvim_aider.api")
 
+-- Session tracking for avoiding duplicate operations
+local session = require("nvim_aider.session")
+
 local deprecation_shown = false
 
 setmetatable(M, {
@@ -52,6 +55,54 @@ function M.setup(opts)
         desc = "Reload buffer if the underlying file was changed by Aider or anything else",
       })
     end
+  end
+
+  -- Auto-manage context: automatically add/remove buffers from aider session
+  if M.config.options.auto_manage_context then
+    local context_grp = vim.api.nvim_create_augroup("AiderAutoContext", { clear = true })
+    local utils = require("nvim_aider.utils")
+    local terminal = require("nvim_aider.terminal")
+
+    -- Add buffer when it's opened/read
+    vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+      group = context_grp,
+      callback = function(ev)
+        local bufnr = ev.buf
+        if utils.is_valid_buffer(bufnr, M.config.options.ignore_buffers) then
+          -- Check if aider terminal is open
+          if terminal.is_running() then
+            local filepath = vim.api.nvim_buf_get_name(bufnr)
+            if filepath ~= "" and not session.is_file_in_session(filepath) then
+              -- Use a small delay to ensure the buffer is fully loaded
+              vim.defer_fn(function()
+                M.api.add_file(filepath)
+                session.add_file(filepath)
+              end, 100)
+            end
+          end
+        end
+      end,
+      desc = "Auto-add new buffers to aider session",
+    })
+
+    -- Remove buffer when it's deleted
+    vim.api.nvim_create_autocmd("BufDelete", {
+      group = context_grp,
+      callback = function(ev)
+        local bufnr = ev.buf
+        if utils.is_valid_buffer(bufnr, M.config.options.ignore_buffers) then
+          -- Check if aider terminal is open
+          if terminal.is_running() then
+            local filepath = vim.api.nvim_buf_get_name(bufnr)
+            if filepath ~= "" and session.is_file_in_session(filepath) then
+              M.api.drop_file(filepath)
+              session.remove_file(filepath)
+            end
+          end
+        end
+      end,
+      desc = "Auto-remove deleted buffers from aider session",
+    })
   end
 end
 

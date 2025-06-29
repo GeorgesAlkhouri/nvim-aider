@@ -13,6 +13,8 @@
 
 ---@class nvim_aider.Config: snacks.terminal.Opts
 ---@field auto_reload? boolean Automatically reload buffers changed by Aider (requires vim.o.autoread = true)
+---@field auto_manage_context? boolean Automatically add/remove buffers to/from aider session
+---@field ignore_buffers? string[] List of buffer name patterns to ignore when auto-managing context
 ---@field aider_cmd? string
 ---@field args? string[]
 ---@field theme? nvim_aider.Theme
@@ -22,6 +24,15 @@ local M = {}
 
 M.defaults = {
   auto_reload = false,
+  auto_manage_context = false,
+  ignore_buffers = {
+    "^term://",
+    "NeogitConsole",
+    "NvimTree_",
+    "neo-tree filesystem",
+    "^fugitive://",
+    "^oil://",
+  },
   aider_cmd = "aider",
   args = {
     "--no-auto-commits",
