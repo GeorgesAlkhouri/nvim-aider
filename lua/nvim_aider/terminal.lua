@@ -2,9 +2,6 @@ local M = {}
 
 local config = require("nvim_aider.config")
 
--- Track whether we've already done the initial auto-add for this session
-local initial_auto_add_done = false
-
 ---@param opts nvim_aider.Config
 ---@return string
 local function create_cmd(opts)
@@ -70,23 +67,27 @@ function M.toggle(opts)
 
   local term = snacks.toggle(cmd, opts)
 
-  -- Auto-add all buffers only if auto_manage_context is enabled,
-  -- terminal is now running, and this is the first time we're opening it
-  if opts.auto_manage_context and term and term.buf and not was_running and not initial_auto_add_done then
-    initial_auto_add_done = true
-    -- Use a timer to ensure aider is ready to receive commands
+  -- Auto-add all buffers if auto_manage_context is enabled and we're starting a new aider process
+  -- This happens when:
+  -- 1. Terminal wasn't running before (no existing aider process)
+  -- 2. Now we have a valid terminal with a running job (new process started)
+  if opts.auto_manage_context and term and term.buf and not was_running then
+    -- Double check that we actually have a new running process
     vim.defer_fn(function()
-      local api = require("nvim_aider.api")
-      api.add_all_buffers(opts)
+      -- Verify the terminal has a running job before adding buffers
+      local ok, chan = pcall(vim.api.nvim_buf_get_var, term.buf, "terminal_job_id")
+      if ok and chan and chan > 0 then
+        -- Check if the job is actually running (not finished)
+        local job_info = vim.fn.jobwait({chan}, 0)
+        if job_info[1] == -1 then -- -1 means job is still running
+          local api = require("nvim_aider.api")
+          api.add_all_buffers(opts)
+        end
+      end
     end, 1000)
   end
 
   return term
-end
-
----Reset the initial auto-add state (useful when session is reset)
-function M.reset_auto_add_state()
-  initial_auto_add_done = false
 end
 
 ---Send text to terminal
