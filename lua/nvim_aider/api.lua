@@ -2,6 +2,7 @@ local M = {}
 local commands = require("nvim_aider.commands_slash")
 local diagnostics = require("nvim_aider.diagnostics")
 local picker = require("nvim_aider.picker")
+local session = require("nvim_aider.session")
 local terminal = require("nvim_aider.terminal")
 local utils = require("nvim_aider.utils")
 
@@ -107,9 +108,37 @@ end
 function M.add_file(filepath, opts)
   if filepath then
     terminal.command(commands.add.value, filepath, opts or {})
+    session.add_file(filepath)
   else
     vim.notify("No file path provided", vim.log.levels.ERROR)
   end
+end
+
+---Add multiple files to session in a single command
+---@param filepaths string[] List of file paths to add
+---@param opts? table Optional configuration override
+function M.add_files(filepaths, opts)
+  if not filepaths or #filepaths == 0 then
+    vim.notify("No file paths provided", vim.log.levels.ERROR)
+    return
+  end
+
+  if #filepaths == 1 then
+    -- If only one file, use the single file function
+    M.add_file(filepaths[1], opts)
+    return
+  end
+
+  -- For multiple files, send them all in one command
+  local files_str = table.concat(filepaths, " ")
+  terminal.command(commands.add.value, files_str, opts or {})
+
+  -- Track all files in session
+  for _, filepath in ipairs(filepaths) do
+    session.add_file(filepath)
+  end
+
+  vim.notify(string.format("Added %d files to aider session", #filepaths), vim.log.levels.INFO)
 end
 
 ---Add current file to session
@@ -123,12 +152,29 @@ function M.add_current_file(opts)
   end
 end
 
+---Add all valid buffers to session
+---@param opts? table Optional configuration override
+function M.add_all_buffers(opts)
+  local config = require("nvim_aider.config")
+  local ignore_patterns = config.options.ignore_buffers or {}
+  local filepaths = utils.get_valid_buffers(ignore_patterns)
+
+  if #filepaths == 0 then
+    vim.notify("No valid buffers found to add", vim.log.levels.INFO)
+    return
+  end
+
+  -- Use the new add_files function for better performance
+  M.add_files(filepaths, opts)
+end
+
 ---Remove specific file from session
 ---@param filepath string Path to file to remove
 ---@param opts? table Optional configuration override
 function M.drop_file(filepath, opts)
   if filepath then
     terminal.command(commands.drop.value, filepath, opts or {})
+    session.remove_file(filepath)
   else
     vim.notify("No file path provided", vim.log.levels.ERROR)
   end
@@ -160,6 +206,7 @@ end
 ---@param opts? table Optional configuration override
 function M.reset_session(opts)
   terminal.command(commands.reset.value, nil, opts or {})
+  session.clear_session()
 end
 
 ---Open command picker
@@ -178,6 +225,16 @@ function M.open_command_picker(opts, callback)
     end
     picker_instance:close()
   end)
+end
+
+---Toggle aider terminal and auto-add all buffers
+---@param opts? table Optional configuration override
+function M.toggle_with_all_buffers(opts)
+  local config = require("nvim_aider.config")
+  opts = vim.tbl_deep_extend("force", config.options, opts or {})
+  opts.auto_manage_context = true  -- Force auto-add for this call
+
+  return M.toggle_terminal(opts)
 end
 
 return M
