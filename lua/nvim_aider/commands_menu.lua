@@ -51,6 +51,21 @@ local commands = {
           require("nvim_aider.api").add_read_only_file()
         end,
       },
+      files = {
+        doc = "Add multiple files to Aider session",
+        impl = function(input)
+          if input and input ~= "" then
+            -- Split input by spaces to get file paths
+            local filepaths = {}
+            for filepath in input:gmatch("%S+") do
+              table.insert(filepaths, filepath)
+            end
+            require("nvim_aider.api").add_files(filepaths)
+          else
+            vim.notify("Please provide file paths separated by spaces", vim.log.levels.INFO)
+          end
+        end,
+      },
     },
   },
   drop = {

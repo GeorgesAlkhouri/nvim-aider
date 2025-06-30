@@ -114,6 +114,33 @@ function M.add_file(filepath, opts)
   end
 end
 
+---Add multiple files to session in a single command
+---@param filepaths string[] List of file paths to add
+---@param opts? table Optional configuration override
+function M.add_files(filepaths, opts)
+  if not filepaths or #filepaths == 0 then
+    vim.notify("No file paths provided", vim.log.levels.ERROR)
+    return
+  end
+
+  if #filepaths == 1 then
+    -- If only one file, use the single file function
+    M.add_file(filepaths[1], opts)
+    return
+  end
+
+  -- For multiple files, send them all in one command
+  local files_str = table.concat(filepaths, " ")
+  terminal.command(commands.add.value, files_str, opts or {})
+
+  -- Track all files in session
+  for _, filepath in ipairs(filepaths) do
+    session.add_file(filepath)
+  end
+
+  vim.notify(string.format("Added %d files to aider session", #filepaths), vim.log.levels.INFO)
+end
+
 ---Add current file to session
 ---@param opts? table Optional configuration override
 function M.add_current_file(opts)
@@ -137,11 +164,8 @@ function M.add_all_buffers(opts)
     return
   end
 
-  for _, filepath in ipairs(filepaths) do
-    M.add_file(filepath, opts)
-  end
-
-  vim.notify(string.format("Added %d buffers to aider session", #filepaths), vim.log.levels.INFO)
+  -- Use the new add_files function for better performance
+  M.add_files(filepaths, opts)
 end
 
 ---Remove specific file from session
