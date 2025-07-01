@@ -158,7 +158,7 @@ function open_override(cmd, opts)
       0,
       vim.schedule_wrap(function()
         idle_timer:stop()
-        if vim.b[term.buf] then
+        if vim.b[term.buf] and vim.b[term.buf].aider_busy then
           vim.b[term.buf].aider_busy = false
           set_done()
           vim.api.nvim_exec_autocmds("User", { pattern = "AiderDone" })
