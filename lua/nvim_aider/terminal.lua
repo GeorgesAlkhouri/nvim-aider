@@ -70,7 +70,7 @@ function M.send(text, opts, multi_line)
 
   -- fire via wrapper helper ----------------------------------------------
   if term.send_with_timer then
-    term:send_with_timer(payload)
+    term:send_with_timer(payload, opts)
   else -- very old snacks build: fall back
     vim.api.nvim_chan_send(term.job_id, payload)
   end
@@ -78,7 +78,27 @@ end
 
 ---Send an Aider slash‑command (convenience)
 function M.command(cmd, text, opts)
-  M.send((cmd or "") .. " " .. (text or ""), opts, false)
+  local command_word = vim.split(cmd or "", " ")[1]
+  local current_opts = vim.tbl_deep_extend("force", config.options, opts or {})
+
+  local is_quick = false
+  if current_opts.quick_commands then
+    for _, quick_cmd in ipairs(current_opts.quick_commands) do
+      if command_word == quick_cmd then
+        is_quick = true
+        break
+      end
+    end
+  end
+
+  local send_opts = opts
+  if is_quick then
+    send_opts = vim.tbl_deep_extend("force", {}, opts or {})
+    send_opts.idle_timeout = current_opts.quick_idle_timeout
+    send_opts.notifications = false
+  end
+
+  M.send((cmd or "") .. " " .. (text or ""), send_opts, false)
 end
 
 return M

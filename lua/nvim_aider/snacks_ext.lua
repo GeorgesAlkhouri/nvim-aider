@@ -109,7 +109,6 @@ function open_override(cmd, opts)
   --------------------------------------------------------------------------
   -- TIMER STATE                                                           --
   --------------------------------------------------------------------------
-  local idle_timeout = opts.idle_timeout or 5000
   local response_timeout = opts.response_timeout or 30000
   local uv = vim.uv or vim.loop
   local idle_timer = uv.new_timer()
@@ -121,28 +120,33 @@ function open_override(cmd, opts)
   --------------------------------------------------------------------------
   vim.b[term.buf].aider_notif = nil
 
+  local function get_effective_opts()
+    local send_opts = vim.b[term.buf] and vim.b[term.buf].aider_send_opts or {}
+    return vim.tbl_deep_extend("force", {}, opts, send_opts)
+  end
+
   local function notify(msg, level, icon, prev)
     local n_opts = { title = "nvim-aider", icon = icon or "", replace = prev }
     return vim.notify(msg, level, n_opts)
   end
 
   local function set_processing()
-    if opts.notifications then
+    if get_effective_opts().notifications then
       vim.b[term.buf].aider_notif = notify("Processing…", vim.log.levels.INFO, "", vim.b[term.buf].aider_notif)
     end
   end
   local function set_still_waiting()
-    if opts.notifications then
+    if get_effective_opts().notifications then
       vim.b[term.buf].aider_notif = notify("Still waiting…", vim.log.levels.WARN, "", vim.b[term.buf].aider_notif)
     end
   end
   local function set_done()
-    if opts.notifications then
+    if get_effective_opts().notifications then
       vim.b[term.buf].aider_notif = notify("Done ✔", vim.log.levels.INFO, "", vim.b[term.buf].aider_notif)
     end
   end
   local function set_error(code)
-    if opts.notifications then
+    if get_effective_opts().notifications then
       vim.b[term.buf].aider_notif =
         notify("Exited (" .. code .. ")", vim.log.levels.ERROR, "", vim.b[term.buf].aider_notif)
     end
@@ -152,15 +156,18 @@ function open_override(cmd, opts)
   -- helpers                                                               --
   --------------------------------------------------------------------------
   local function reset_idle_timer()
+    local effective_opts = get_effective_opts()
+    local current_idle_timeout = effective_opts.idle_timeout or 5000
     idle_timer:stop()
     idle_timer:start(
-      idle_timeout,
+      current_idle_timeout,
       0,
       vim.schedule_wrap(function()
         idle_timer:stop()
         if vim.b[term.buf] and vim.b[term.buf].aider_busy then
           vim.b[term.buf].aider_busy = false
           set_done()
+          vim.b[term.buf].aider_send_opts = nil
           vim.api.nvim_exec_autocmds("User", { pattern = "AiderDone" })
         end
       end)
@@ -239,6 +246,7 @@ function open_override(cmd, opts)
         else
           set_done()
         end
+        vim.b[term.buf].aider_send_opts = nil
       end
       vim.api.nvim_exec_autocmds("User", { pattern = "AiderExit", data = { code = code } })
       if opts.on_exit then
@@ -266,7 +274,7 @@ function open_override(cmd, opts)
   --------------------------------------------------------------------------
   -- public helper: send_with_timer                                        --
   --------------------------------------------------------------------------
-  function term:send_with_timer(payload)
+  function term:send_with_timer(payload, send_opts)
     if not M.is_running(self) then
       vim.notify(
         "Aider process is not running – reopen the terminal.",
@@ -276,6 +284,7 @@ function open_override(cmd, opts)
       return
     end
     vim.b[self.buf].aider_busy = true
+    vim.b[self.buf].aider_send_opts = send_opts
     set_processing()
     got_first_chunk = false
     idle_timer:stop()

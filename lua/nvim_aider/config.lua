@@ -21,11 +21,14 @@
 ---@field idle_timeout? integer Timeout in milliseconds for waiting for the next chunk of output from Aider. (default: 5000)
 ---@field response_timeout? integer Timeout in milliseconds for waiting for the first chunk of output from Aider. (default: 30000)
 ---@field notifications? boolean Show notifications like 'Processing...', 'Done'. Warnings for busy process are still shown. (default: true)
+---@field quick_idle_timeout? integer Timeout in milliseconds for quick commands. (default: 500)
+---@field quick_commands? string[] A list of slash-commands that should have a shorter idle timeout.
 local M = {}
 
 M.defaults = {
   auto_reload = false,
   idle_timeout = 5000,
+  quick_idle_timeout = 500,
   response_timeout = 30000,
   notifications = true,
   aider_cmd = "aider",
@@ -34,6 +37,15 @@ M.defaults = {
     "--pretty",
     "--stream",
     "--watch-files",
+  },
+  quick_commands = {
+    "/add",
+    "/drop",
+    "/read-only",
+    "/ls",
+    "/clear",
+    "/reset",
+    "/undo",
   },
   config = {
     os = { editPreset = "nvim-remote" },
