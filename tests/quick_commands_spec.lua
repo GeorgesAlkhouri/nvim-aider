@@ -1,0 +1,70 @@
+-- FIX:
+--
+-- describe("Quick Commands", function()
+--   local terminal
+--   local config
+--   local send_spy
+--   local spy
+--
+--   before_each(function()
+--     package.loaded["nvim_aider.terminal"] = nil
+--     package.loaded["nvim_aider.config"] = nil
+--     spy = require("luassert.spy")
+--
+--     -- Ensure config is fresh for each test to prevent state leakage
+--     config = require("nvim_aider.config")
+--     config.options = vim.deepcopy(config.defaults)
+--
+--     terminal = require("nvim_aider.terminal")
+--
+--     -- Spy on `terminal.send` to check what `terminal.command` passes to it.
+--     send_spy = spy.on(terminal, "send")
+--     send_spy:dont_call_through()
+--   end)
+--
+--   after_each(function()
+--     if spy and spy.revert_all then
+--       spy.revert_all()
+--     end
+--     package.loaded["nvim_aider.terminal"] = nil
+--     package.loaded["nvim_aider.config"] = nil
+--   end)
+--
+--   it("should use quick_idle_timeout and disable notifications for a quick command", function()
+--     -- /add is a default quick command.
+--     terminal.command("/add", "some_file.lua")
+--     assert.spy(send_spy).was_called(1)
+--     local call = send_spy.calls[1]
+--     local opts = call[2]
+--
+--     assert.is_table(opts, "Options should be a table for quick commands")
+--     assert.equals(config.defaults.quick_idle_timeout, opts.idle_timeout)
+--     assert.is_false(opts.notifications)
+--   end)
+--
+--   it("should use default settings for a non-quick command", function()
+--     -- /run is not a default quick command.
+--     terminal.command("/run", "some command")
+--     assert.spy(send_spy).was_called(1)
+--     local call = send_spy.calls[1]
+--     local opts = call[2]
+--
+--     -- For non-quick commands, no special options are generated, so opts should be nil
+--     -- if not passed to terminal.command.
+--     assert.is_nil(opts)
+--   end)
+--
+--   it("should allow user to override quick_commands", function()
+--     -- Override default quick commands
+--     config.options.quick_commands = { "/custom" }
+--
+--     terminal.command("/custom", "some_file.lua")
+--     assert.spy(send_spy).was_called(1)
+--     local call = send_spy.calls[1]
+--     local opts = call[2]
+--
+--     assert.is_table(opts, "Options should be a table for overridden quick commands")
+--     assert.equals(config.defaults.quick_idle_timeout, opts.idle_timeout)
+--     assert.is_false(opts.notifications)
+--   end)
+-- end)

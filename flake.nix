@@ -48,10 +48,11 @@
         {
           devenv.shells.default = {
             name = "nvim-aider";
-
+            env = {
+              AIDER_THINKING_TOKENS = "32k";
+            };
             languages.python.enable = true;
             languages.python.package = python';
-            languages.python.uv.enable = true;
             languages.python.venv.enable = true;
             git-hooks.hooks = {
               trim-trailing-whitespace.enable = true;
@@ -69,7 +70,7 @@
             # '';
             enterShell = ''
               echo "✨ Updating flake.lock"
-              # nix flake update --quiet --option warn-dirty false
+              nix flake update --quiet --option warn-dirty false
 
               if [ -f .env ]; then
                     export $(grep -v '^#' .env | xargs)
