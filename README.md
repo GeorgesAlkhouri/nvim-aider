@@ -21,6 +21,7 @@
 - [x] 🔍 Aider command selection UI with fuzzy search and input prompt
 - [x] 🔌 Fully documented [Lua API](lua/nvim_aider/api.lua) for
       programmatic interaction and custom integrations
+- [x] 🛡️ Command guard with status notifications to prevent interrupting Aider while it's processing
 - [x] 🔄 Auto-reload buffers on external changes (requires 'autoread')
 
 ## 🧩 Integrations
@@ -128,6 +129,24 @@ require("nvim_aider").setup({
   },
   -- Automatically reload buffers changed by Aider (requires vim.o.autoread = true)
   auto_reload = false,
+  -- Idle timeout in ms for Aider's output.
+  idle_timeout = 5000,
+  -- Response timeout in ms for Aider's first output chunk.
+  response_timeout = 30000,
+  -- Timeout in ms for quick commands.
+  quick_idle_timeout = 500,
+  -- A list of slash-commands that should have a shorter idle timeout.
+  quick_commands = {
+    "/add",
+    "/drop",
+    "/read-only",
+    "/ls",
+    "/clear",
+    "/reset",
+    "/undo",
+  },
+  -- Show 'Processing...' and 'Done' notifications.
+  notifications = true,
   -- Theme colors (automatically uses Catppuccin flavor if available)
   theme = {
     user_input_color = "#a6da95",
