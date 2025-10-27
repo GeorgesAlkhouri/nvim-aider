@@ -59,9 +59,9 @@
 
 ## 🔗 Requirements
 
-🐍 Python: Install `aider-chat`
-📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier
-🌙 Lua: `folke/snacks.nvim`,
+🐍 Python: Install `aider-chat`  
+📋 System: **Neovim** >= 0.9.4, ~~Working clipboard~~ thanks to @milanglacier  
+🌙 Lua: `folke/snacks.nvim` ≥ v2.24.0,  
 _optionals_ `catppuccin/nvim`, `nvim-neo-tree/neo-tree.nvim`, `nvim-tree.lua`
 
 ## 📦 Installation
@@ -87,7 +87,7 @@ Using lazy.nvim:
       { "<leader>a-", "<cmd>AiderTreeDropFile<cr>", desc = "Drop File from Tree from Aider", ft = "NvimTree" },
     },
     dependencies = {
-      "folke/snacks.nvim",
+      { "folke/snacks.nvim", version = ">=2.24.0" },
       --- The below dependencies are optional
       "catppuccin/nvim",
       "nvim-tree/nvim-tree.lua",

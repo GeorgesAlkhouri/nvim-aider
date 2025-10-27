@@ -10,13 +10,13 @@ local Base = require("snacks.terminal")
 local Snacks = require("snacks")
 local uv = vim.uv or vim.loop
 
--- forward‑declarations so we can reuse them in both toggle() and get()
+-- forward-declarations so we can reuse them in both toggle() and get()
 local function open_override(cmd, opts) end
 
 -- ----------------------------------------------------------------------- --
 -- create a table that proxies every unknown key to the original module    --
 local M = setmetatable({}, {
-  __index = Base, -- standard single‑inheritance idiom :contentReference[oaicite:3]{index=3}
+  __index = Base, -- standard single-inheritance idiom :contentReference[oaicite:3]{index=3}
   __call = function(_, ...)
     return M.toggle(...)
   end,
@@ -25,7 +25,12 @@ local M = setmetatable({}, {
 -- ----------------------------------------------------------------------- --
 -- Public helpers                                                          --
 function M.is_running(term)
-  return term and term.job_id and vim.fn.jobwait({ term.job_id }, 0)[1] == -1
+  -- Prefer the terminal buffer's built-in job id; fall back to legacy self.job_id
+  if not (term and term.buf and vim.api.nvim_buf_is_valid(term.buf)) then
+    return false
+  end
+  local jid = vim.b[term.buf] and vim.b[term.buf].terminal_job_id or term.job_id
+  return jid and vim.fn.jobwait({ jid }, 0)[1] == -1 or false
 end
 
 -- ----------------------------------------------------------------------- --
@@ -42,75 +47,29 @@ end
 
 -- ----------------------------------------------------------------------- --
 -- Implementation of the override: timers + notifications -----------------
+-- IMPORTANT: In newer snacks.nvim, registration of terminals happens
+-- inside Base.open(). To stay compatible (and satisfy the new assert in
+-- Base.get()), we delegate creation to Base.open() and *decorate* the
+-- returned terminal (keymaps, timers, send_with_timer, notifications),
+-- instead of constructing the window and job ourselves.
 function open_override(cmd, opts)
-  local id = vim.v.count1
-  opts.win = Snacks.win.resolve("terminal", { position = cmd and "float" or "bottom" }, opts.win, { show = false })
-  opts = vim.deepcopy(opts)
-  opts.win.wo.winbar = opts.win.wo.winbar
-    or (opts.win.position == "float" and "" or (id .. ": %{get(b:, 'term_title', '')}"))
+  -- Keep incoming opts intact for user-level behavior, but avoid recursive override
+  -- NOTE: tbl_deep_extend with { override = nil } does NOT delete the key.
+  -- Use deepcopy and explicitly clear it so Base.open() won't call us again.
+  local opts2 = vim.deepcopy(opts or {})
+  opts2.override = false -- prevent Base.open from invoking open_override again
 
-  local interactive = opts.interactive ~= false
-  local auto_insert = opts.auto_insert or (opts.auto_insert == nil and interactive)
-  local start_insert = opts.start_insert or (opts.start_insert == nil and interactive)
-  local auto_close = opts.auto_close or (opts.auto_close == nil and interactive)
+  -- Delegate terminal creation & registration to Snacks (this ensures terminals[tid] is set)
+  local term = Base.open(cmd, opts2)
 
-  local on_buf = opts.win and opts.win.on_buf
-  opts.win.on_buf = function(self)
-    self.cmd = cmd
-    vim.b[self.buf].snacks_terminal = { cmd = cmd, id = id }
-    if on_buf then
-      on_buf(self)
-    end
-  end
-  local on_win = opts.win and opts.win.on_win
-  opts.win.on_win = function(self)
-    if start_insert and vim.api.nvim_get_current_buf() == self.buf then
-      vim.cmd.startinsert()
-    end
-    if on_win then
-      on_win(self)
-    end
-  end
-
-  local term = Snacks.win(opts.win)
-
-  if auto_insert then
-    term:on("BufEnter", function()
-      vim.cmd.startinsert()
-    end, { buf = true })
-  end
-
-  if auto_close then
-    term:on("TermClose", function()
-      if type(vim.v.event) == "table" and vim.v.event.status ~= 0 then
-        vim.notify(
-          "Terminal exited with code " .. vim.v.event.status .. ".\nCheck for any errors.",
-          vim.log.levels.ERROR,
-          { title = "nvim-aider" }
-        )
-        return
-      end
-      term:close()
-      vim.cmd.checktime()
-    end, { buf = true })
-  end
-
-  term:on("ExitPre", function()
-    term:close()
-  end)
-  term:on("BufWipeout", function()
-    vim.schedule(function()
-      term:close()
-    end)
-  end, { buf = true })
-
-  term:show()
+  -- From here on, we decorate the terminal with our UX features
+  -- (Processing / Still waiting / Done notifications + timers)
 
   --------------------------------------------------------------------------
   -- TIMER STATE                                                           --
   --------------------------------------------------------------------------
-  local response_timeout = opts.response_timeout or 30000
-  local uv = vim.uv or vim.loop
+  local response_timeout = opts2.response_timeout or 30000
+  local idle_timeout = opts2.idle_timeout or 5000
   local idle_timer = uv.new_timer()
   local response_timer = uv.new_timer()
   local got_first_chunk = false
@@ -119,10 +78,12 @@ function open_override(cmd, opts)
   -- notification state per buffer                                         --
   --------------------------------------------------------------------------
   vim.b[term.buf].aider_notif = nil
+  vim.b[term.buf].aider_alive = true
+  vim.b[term.buf].aider_busy = false
 
   local function get_effective_opts()
     local send_opts = vim.b[term.buf] and vim.b[term.buf].aider_send_opts or {}
-    return vim.tbl_deep_extend("force", {}, opts, send_opts)
+    return vim.tbl_deep_extend("force", {}, opts2, send_opts)
   end
 
   local function notify(msg, level, icon, prev)
@@ -155,9 +116,18 @@ function open_override(cmd, opts)
   --------------------------------------------------------------------------
   -- helpers                                                               --
   --------------------------------------------------------------------------
+  local function stop_all()
+    pcall(function()
+      idle_timer:stop()
+    end)
+    pcall(function()
+      response_timer:stop()
+    end)
+  end
+
   local function reset_idle_timer()
     local effective_opts = get_effective_opts()
-    local current_idle_timeout = effective_opts.idle_timeout or 5000
+    local current_idle_timeout = effective_opts.idle_timeout or idle_timeout
     idle_timer:stop()
     idle_timer:start(
       current_idle_timeout,
@@ -173,6 +143,8 @@ function open_override(cmd, opts)
       end)
     )
   end
+
+  private_start_response_timer = nil
   local function start_response_timer()
     response_timer:stop()
     response_timer:start(
@@ -195,6 +167,45 @@ function open_override(cmd, opts)
     end
   end
 
+  -- Detect terminal output: attach to buffer changes (acts as our stdout signal)
+  -- We rely on Base.open() using termopen(), which writes to the terminal buffer.
+  vim.api.nvim_buf_attach(term.buf, false, {
+    on_lines = function()
+      -- First chunk: stop the "still waiting" timer
+      if not got_first_chunk then
+        got_first_chunk = true
+        response_timer:stop()
+      end
+      -- Any output while busy: reset idle timer
+      if vim.b[term.buf].aider_busy then
+        reset_idle_timer()
+      end
+    end,
+    on_detach = function()
+      stop_all()
+    end,
+  })
+
+  -- Double safety: also stop timers on close/wipeout and report exit code once
+  term:on("TermClose", function()
+    stop_all()
+    -- If we can read the status, show notification (mirrors original behavior)
+    if type(vim.v.event) == "table" and vim.v.event.status ~= nil then
+      if vim.v.event.status ~= 0 then
+        set_error(vim.v.event.status)
+      else
+        set_done()
+      end
+    end
+    vim.b[term.buf].aider_send_opts = nil
+    vim.api.nvim_exec_autocmds("User", { pattern = "AiderExit", data = { code = vim.v.event and vim.v.event.status } })
+  end, { buf = true })
+
+  term:on("BufWipeout", function()
+    stop_all()
+  end, { buf = true })
+
+  -- Keep the convenient "press <CR> means we're submitting" behavior
   vim.keymap.set("t", "<CR>", function()
     user_trigger_processing()
     return "<CR>"
@@ -203,79 +214,21 @@ function open_override(cmd, opts)
   --------------------------------------------------------------------------
   -- jobstart callbacks                                                    --
   --------------------------------------------------------------------------
-  local job_opts = {
-    cwd = opts.cwd,
-    env = opts.env,
-    term = true,
+  -- NOTE: We now let Snacks/Base.open() own jobstart/termopen. Instead of
+  -- passing on_stdout/on_stderr here, we approximate "output observed"
+  -- by listening to terminal buffer changes (see nvim_buf_attach above).
+  -- This keeps us compatible with Snacks' new registration & assert logic.
 
-    on_stdout = function(job_id, data, _)
-      if data[1] and data[1] ~= "" then
-        if not got_first_chunk then
-          got_first_chunk = true
-          response_timer:stop()
-        end
-        reset_idle_timer()
-      end
-      if opts.on_stdout then
-        opts.on_stdout(job_id, data, "stdout")
-      end
-    end,
-
-    on_stderr = function(job_id, data, _)
-      if data[1] and data[1] ~= "" then
-        if not got_first_chunk then
-          got_first_chunk = true
-          response_timer:stop()
-        end
-        reset_idle_timer()
-        vim.notify(table.concat(data, "\n"), vim.log.levels.ERROR, { title = "nvim-aider" })
-      end
-      if opts.on_stderr then
-        opts.on_stderr(job_id, data, "stderr")
-      end
-    end,
-
-    on_exit = function(job_id, code, _)
-      idle_timer:stop()
-      response_timer:stop()
-      if term and term.buf and vim.api.nvim_buf_is_valid(term.buf) then
-        -- vim.api.nvim_buf_set_var(term.buf, "aider_alive", false)
-        vim.b[term.buf].aider_alive = false
-        if code ~= 0 then
-          set_error(code)
-        else
-          set_done()
-        end
-        vim.b[term.buf].aider_send_opts = nil
-      end
-      vim.api.nvim_exec_autocmds("User", { pattern = "AiderExit", data = { code = code } })
-      if opts.on_exit then
-        opts.on_exit(job_id, code, "exit")
-      end
-    end,
-  }
-
+  -- legacy flags (kept for compatibility / tests)
   vim.api.nvim_buf_set_var(term.buf, "aider_alive", true)
   vim.api.nvim_buf_set_var(term.buf, "aider_busy", false)
-
-  local function jobstart(cmd, jopts)
-    local fn = vim.fn.jobstart
-    if vim.fn.termopen then
-      jopts.term = nil
-      fn = vim.fn.termopen
-    end
-    return fn(cmd, vim.tbl_isempty(jopts) and vim.empty_dict() or jopts)
-  end
-
-  vim.api.nvim_buf_call(term.buf, function()
-    term.job_id = jobstart(cmd or Base.parse(opts.shell or vim.o.shell), job_opts)
-  end)
 
   --------------------------------------------------------------------------
   -- public helper: send_with_timer                                        --
   --------------------------------------------------------------------------
   function term:send_with_timer(payload, send_opts)
-    if not M.is_running(self) then
+    local jid = vim.b[self.buf] and vim.b[self.buf].terminal_job_id or self.job_id
+    if not (jid and vim.fn.jobwait({ jid }, 0)[1] == -1) then
       vim.notify(
         "Aider process is not running – reopen the terminal.",
         vim.log.levels.ERROR,
@@ -289,7 +242,7 @@ function open_override(cmd, opts)
     got_first_chunk = false
     idle_timer:stop()
     start_response_timer()
-    vim.api.nvim_chan_send(self.job_id, payload)
+    vim.api.nvim_chan_send(jid, payload)
   end
 
   vim.cmd("noh")

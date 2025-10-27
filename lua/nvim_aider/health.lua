@@ -22,13 +22,20 @@ function M.check()
   end
 
   -- Snacks plugin check
-  local has_snacks = pcall(require, "snacks")
-  if has_snacks then
-    health.ok("snacks.nvim plugin found")
-  else
+  local ok, Snacks = pcall(require, "snacks")
+  if not ok then
     health.error("snacks.nvim plugin not found", {
       "Install folke/snacks.nvim using your plugin manager",
     })
+  else
+    local need, have = "v2.24.0", (Snacks.version or "0.0.0")
+    if vim.version.cmp(have, need) >= 0 then
+      health.ok(("snacks.nvim %s (meets %s)"):format(have, need))
+    else
+      health.error(("snacks.nvim %s found, need %s or newer"):format(have, need), {
+        "Update folke/snacks.nvim to >= v2.24.0",
+      })
+    end
   end
 
   health.start("Optional Features")

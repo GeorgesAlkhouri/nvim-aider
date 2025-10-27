@@ -130,15 +130,31 @@ describe("Snacks.nvim compatibility tests", function()
       parse = function(s)
         return { s }
       end,
-      toggle = function(cmd, opts)
-        if opts.override then
-          return opts.override(cmd, opts)
-        end
+
+      -- NEW: emulate Snacks.open behavior enough for the test
+      open = function(cmd, opts)
+        local win_cfg = win_spy.resolve(
+          "terminal",
+          { position = cmd and "float" or "bottom" },
+          opts and opts.win,
+          { show = false }
+        )
+        -- constructor call (this is what the test spies on)
+        return win_spy(win_cfg or { wo = {} })
       end,
-      get = function(cmd, opts)
-        if opts.override then
+
+      toggle = function(cmd, opts)
+        if opts and opts.override then
           return opts.override(cmd, opts)
         end
+        return package.loaded["snacks.terminal"].open(cmd, opts)
+      end,
+
+      get = function(cmd, opts)
+        if opts and opts.override then
+          return opts.override(cmd, opts)
+        end
+        return package.loaded["snacks.terminal"].open(cmd, opts)
       end,
     }
 
