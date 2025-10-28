@@ -24,6 +24,18 @@ setmetatable(M, {
 
 ---@param opts? nvim_aider.Config
 function M.setup(opts)
+  -- Snacks version guard (require >= v2.24.0)
+  local ok, Snacks = pcall(require, "snacks")
+  local have = ok and (Snacks.version or "0.0.0") or "0.0.0"
+  if not ok or vim.version.cmp(have, "2.24.0") < 0 then
+    vim.notify(
+      ("nvim-aider requires snacks.nvim >= v2.24.0 (found %s)"):format(ok and have or "not installed"),
+      vim.log.levels.ERROR,
+      { title = "nvim-aider" }
+    )
+    return
+  end
+
   M.config.setup(opts)
 
   if M.config.options.auto_reload then

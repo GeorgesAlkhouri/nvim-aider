@@ -16,9 +16,7 @@
   outputs =
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        inputs.noospherix.hub.devenv.flakeModule
-      ];
+      imports = [ inputs.noospherix.hub.devenv.flakeModule ];
       systems = [
         "x86_64-linux"
         "i686-linux"
@@ -37,13 +35,8 @@
           ...
         }:
         let
-          unstable = import inputs.noospherix.hub.nixpkgs-unstable {
-            inherit system;
-          };
-          python' = unstable.python312Full.withPackages (
-            ps: with ps; [
-            ]
-          );
+          unstable = import inputs.noospherix.hub.nixpkgs-unstable { inherit system; };
+          python' = unstable.python312.withPackages (ps: with ps; [ ]);
         in
         {
           devenv.shells.default = {
@@ -56,6 +49,7 @@
             languages.python.venv.enable = true;
             git-hooks.hooks = {
               trim-trailing-whitespace.enable = true;
+              trim-trailing-whitespace.exclude_types = [ "markdown" ];
               check-merge-conflicts.enable = true;
             };
 
