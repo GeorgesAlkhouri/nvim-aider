@@ -29,6 +29,7 @@
 - [x] 🌲➕ [Neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim) offers rich context management for Aider, including files, directories, and multi-selection
 - [x] 🔖 [bookmarks.nvim](https://github.com/LintaoAmons/bookmarks.nvim) enables adding (optionally as read-only) or dropping files from Aider using saved bookmarks
 - [x] 🌳 [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua) enables adding or dropping individual files to Aider directly from its tree interface
+- [x] 📱 [Build Remote Agent](https://grokbuildremote.com/) — pair a phone as spectator via `gbr-agent` (`gbr/1`, attach `127.0.0.1:8788` or `gbr-mcp`)
 
 ## 🎮 Commands
 
@@ -319,6 +320,41 @@ end)
 ```
 
 ---
+
+## 📱 Pair a phone with Build Remote Agent
+
+nvim-aider can keep Aider in the Neovim terminal while a phone running
+[Build Remote Agent](https://grokbuildremote.com/) spectates the same desktop
+session. Pairing uses the free MIT `gbr-agent`. Protocol `gbr/1`. The phone is
+spectator + veto; nvim-aider/Aider stay the orchestrator.
+
+Independent product. Not affiliated with xAI or SpaceX.
+
+```bash
+# macOS / Linux
+curl -fsSL https://grokbuildremote.com/install.sh | bash
+gbr-agent version          # need v0.6.0+
+gbr-agent pair             # QR in browser + printed 8-char code
+gbr-agent run              # leave running, then :Aider toggle as usual
+```
+
+Phone: open Build Remote Agent → scan the QR (or type the 8-char code).
+**Unpair** in Settings before changing PCs. Force-close is not enough.
+
+Attach only:
+
+- HTTP Bot API: `http://127.0.0.1:8788` after `gbr-agent run`
+- MCP stdio: `node GrokBuildRemote-Agents/mcp/gbr-mcp/bin/gbr-mcp.js`
+
+```bash
+curl -sS http://127.0.0.1:8788/health
+curl -sS http://127.0.0.1:8788/v1/sessions
+```
+
+Do not commit mailbox keys. Phone **Settings → Bot API** is the only place the
+relay key is copied.
+
+Agent (MIT): https://github.com/LinespottingOrg/GrokBuildRemote-Agents
 
 ## 🧩 Other Aider Neovim plugins
 
