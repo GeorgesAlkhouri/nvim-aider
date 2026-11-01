@@ -1,3 +1,13 @@
+> ⚠️ **This project is archived and no longer maintained.**
+>
+> nvim-aider is a thin integration layer around [Aider](https://github.com/Aider-AI/aider).
+> Aider is no longer actively maintained, and this plugin depends entirely on it.
+> So I have decided to archive this repository.
+>
+> The code stays available under the MIT license. Feel free to fork it.
+>
+> Thanks to everyone who used, starred, or contributed to this plugin.
+
 # [![aider](https://avatars.githubusercontent.com/u/172139148?s=20&v=4)](https://aider.chat) nvim-aider
 
 🤖 Seamlessly integrate Aider with Neovim for an enhanced AI-assisted coding experience!
